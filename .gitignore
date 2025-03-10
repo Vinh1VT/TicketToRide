@@ -1,0 +1,4 @@
+*.out
+tickettorideapi
+*.o
+objects
