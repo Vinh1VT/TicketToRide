@@ -17,6 +17,13 @@ $(OBJ_DIR)/%.o: %.c
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
+git : 
+	git -C ../tickettorideapi pull
+	make all 
+
+q : all
+	./projet Vinh
+
 rebuild: clean all
 
-.PHONY: all clean rebuild
+.PHONY: all clean rebuild git q

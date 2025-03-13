@@ -16,9 +16,9 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
     for(int i =0; i<nbTracks;i++){
         tableau[i].Ville1 = *p;
         tableau[i].Ville2 = *(p+1);
-        tableau[i].Longueur = *(p+3);
-        tableau[i].Couleur1 = (CardColor)*(p+4);
-        tableau[i].Couleur2 = (CardColor)*(p+5);
+        tableau[i].Longueur = *(p+2);
+        tableau[i].Couleur1 = (CardColor)*(p+3);
+        tableau[i].Couleur2 = (CardColor)*(p+4);
         if(tableau[i].Couleur2){
             tableau[i].Double = true;
         }
@@ -26,7 +26,36 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
     }
 }
 
+int** createProximityMatrix(Track* tableau, int nbTracks, int nbCities){
+    int ** matrice = malloc(sizeof(int*)*nbCities);
+    for(int i =0; i<nbCities;i++){
+        matrice[i] = malloc(sizeof(int)*nbCities);
+    } 
+    for(int i = 0; i<nbCities;i++){
+        for (int j = 0;j<nbCities;j++){
+            matrice[i][j] = 0;
+        }
+    }
+    for(int i = 0; i<nbTracks;i++){
+        matrice[tableau[i].Ville1][tableau[i].Ville2] = tableau[i].Longueur;
+        matrice[tableau[i].Ville2][tableau[i].Ville1] = tableau[i].Longueur;
+    }
+    
+    return matrice;
+}
 
+
+void afficherMatrice(int** matrice, int n){
+    for(int ligne = 0; ligne<n;ligne++){
+        printf("%d : ",ligne);
+        for(int colonne=0;colonne<n;colonne++){
+            printf("%d",matrice[ligne][colonne]);
+        }
+        printf("\n");
+    }
+
+
+}
 
 int main(int argc, char** argv){
 
@@ -46,8 +75,9 @@ int main(int argc, char** argv){
     MoveResult Mresult;
     Track* tableauTrack = malloc(Gdata.nbTracks * sizeof(Track));
     parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
+    int** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities);
+    //afficherMatrice(Matrice,Gdata.nbCities);
 
-    
     /*if (Gdata.starter == 1){
         printf("send\n");
         const MoveData Mdata2 = {.action = DRAW_OBJECTIVES};
@@ -64,7 +94,7 @@ int main(int argc, char** argv){
     printBoard();*/
     quitGame();
     free(tableauTrack);
-
+    free(Matrice);
 
     return EXIT_SUCCESS;
 }
