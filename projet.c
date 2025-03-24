@@ -9,6 +9,7 @@ typedef struct Track_ {
     CardColor Couleur1;
     bool Double;
     CardColor Couleur2;
+    bool Claimed;
 } Track;
 
 void parseTrack(Track* tableau,int* trackData, int nbTracks){
@@ -22,6 +23,7 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
         if(tableau[i].Couleur2){
             tableau[i].Double = true;
         }
+        tableau[i].Claimed = false;
         p = p + 5;
     }
 }
@@ -57,6 +59,13 @@ void afficherMatrice(int** matrice, int n){
 
 }
 
+void freeMatrix(int** matrice, int n){
+    for (int i = 0; i<n;i++){
+        free(matrice[i]);
+    }
+    free(matrice);
+}
+
 int main(int argc, char** argv){
 
     extern int DEBUG_LEVEL;
@@ -69,32 +78,41 @@ int main(int argc, char** argv){
     
 
     connectToCGS("cgs.valentin-lelievre.com",15001);
-    sendName(argv[1]);
+    if (argc>1){
+        sendName(argv[1]);
+    }else{
+        sendName("Vinh");
+    }
     sendGameSettings(Gsettings,&Gdata);
     printBoard();
     MoveResult Mresult;
+    MoveData Mdata;
     Track* tableauTrack = malloc(Gdata.nbTracks * sizeof(Track));
     parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
     int** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities);
     //afficherMatrice(Matrice,Gdata.nbCities);
 
+
     /*if (Gdata.starter == 1){
-        printf("send\n");
-        const MoveData Mdata2 = {.action = DRAW_OBJECTIVES};
-        Result = sendMove(&Mdata2,&Mresult);
-        printf("0x%x\n",Result);
-        printf("0x%x\n",Mresult.state);
+        getMove(&Mdata, &Mresult);
+        getMove(&Mdata, &Mresult);
     }
     else{
-        MoveData OMdata;
-        Result = getMove(&OMdata,&Mresult);
-        printf("0x%x\n",Result);
-        printf("0x%x\n",Mresult.state);
-    }
-    printBoard();*/
+        Mdata.action = DRAW_OBJECTIVES;
+        sendMove(&Mdata,&Mresult);
+        MoveData Mdata2;
+        Mdata2.action = CHOOSE_OBJECTIVES;
+        Mdata2.chooseObjectives[0] = true;
+        Mdata2.chooseObjectives[1] = false;
+        Mdata2.chooseObjectives[2] = false;
+        sendMove(&Mdata,&Mresult);
+        getMove(&Mdata,&Mresult);
+        getMove(&Mdata,&Mresult);
+
+    }*/
+    printBoard();
     quitGame();
     free(tableauTrack);
-    free(Matrice);
-
+    freeMatrix(Matrice, Gdata.nbCities);
     return EXIT_SUCCESS;
 }
