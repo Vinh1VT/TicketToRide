@@ -185,7 +185,7 @@ ResultCode piocheObjectif(MoveResult* Result){
     return Code;
 }
 
-void manualPlay(int starter)    ²{
+void manualPlay(int starter){
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
     Result -> state = NORMAL_MOVE;
