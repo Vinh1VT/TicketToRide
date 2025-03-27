@@ -18,37 +18,45 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
     }
 }
 
-int** createProximityMatrix(Track* tableau, int nbTracks, int nbCities){
-    int ** matrice = malloc(sizeof(int*)*nbCities);
+Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities, Track* TrackZero){
+    Track *** matrice = malloc(sizeof(Track**)*nbCities);
     for(int i =0; i<nbCities;i++){
-        matrice[i] = malloc(sizeof(int)*nbCities);
+        matrice[i] = malloc(sizeof(Track**)*nbCities);
     }
     for(int i = 0; i<nbCities;i++){
         for (int j = 0;j<nbCities;j++){
-            matrice[i][j] = 0;
+            if(i==j){
+              matrice[i][j] = TrackZero;
+            }else{
+          		matrice[i][j] = NULL;
+            }
         }
     }
-    for(int i = 0; i<nbTracks;i++){
-        matrice[tableau[i].Ville1][tableau[i].Ville2] = tableau[i].Longueur;
-        matrice[tableau[i].Ville2][tableau[i].Ville1] = tableau[i].Longueur;
+    for(int i = 0; i <nbTracks;i++){
+		matrice[tableau[i].Ville1][tableau[i].Ville2] = &tableau[i];
+    	matrice[tableau[i].Ville2][tableau[i].Ville1] = &tableau[i];
     }
 
     return matrice;
 }
 
 
-void afficherMatrice(int** matrice, int n){
+void afficherMatrice(Track*** matrice, int n){
     for(int ligne = 0; ligne<n;ligne++){
         printf("%d : ",ligne);
         for(int colonne=0;colonne<n;colonne++){
-            printf("%d",matrice[ligne][colonne]);
+          if(matrice[ligne][colonne] == NULL){
+          	printf("x ");
+          }else{
+            printf("%d ",matrice[ligne][colonne]->Longueur);
+          }
         }
         printf("\n");
     }
 
 
 }
-void freeMatrix(int** matrice, int n){
+void freeMatrix(Track*** matrice, int n){
     for (int i = 0; i<n;i++){
         free(matrice[i]);
     }

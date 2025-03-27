@@ -1,10 +1,9 @@
-#include "tickettorideapi/ticketToRide.h"
 
 #ifndef FONCTIONS_H
 #define FONCTIONS_H
+#include "tickettorideapi/ticketToRide.h"
 
-
-typedef struct Track_ {
+struct Track_ {
     int Ville1;
     int Ville2;
     int Longueur;
@@ -12,11 +11,21 @@ typedef struct Track_ {
     bool Double;
     CardColor Couleur2;
     bool Claimed;
-} Track;
+};
+typedef struct Track_ Track;
+
+struct Objectif_{
+    int Ville1;
+    int Ville2;
+    int Score;
+};
+typedef struct Objectif_ Objectif;
+
+
 
 void parseTrack(Track* tableau,int* trackData, int nbTracks);
-int** createProximityMatrix(Track* tableau, int nbTracks, int nbCities);
-void afficherMatrice(int** matrice, int n);
-void freeMatrix(int** matrice, int n);
+Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities,Track* TrackZero);
+void afficherMatrice(Track*** matrice, int n);
+void freeMatrix(Track*** matrice, int n);
 
 #endif //FONCTIONS_H
