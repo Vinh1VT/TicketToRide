@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "tickettorideapi/ticketToRide.h"
 #include "fonctions.h"
+#include "manualPlayer.h"
 
 int main(int const argc, char** argv){
 
@@ -25,32 +26,13 @@ int main(int const argc, char** argv){
     }
     sendGameSettings(Gsettings,&Gdata);
     //printBoard();
-    MoveResult Mresult;
-    MoveData Mdata;
+
     Track* tableauTrack = malloc(Gdata.nbTracks * sizeof(Track));
     parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
     Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
-    afficherMatrice(Matrice,Gdata.nbCities);
+    //afficherMatrice(Matrice,Gdata.nbCities);
+    manualPlay(Gdata.starter);
 
-
-    /*if (Gdata.starter == 1){
-        getMove(&Mdata, &Mresult);
-        getMove(&Mdata, &Mresult);
-    }
-    else{
-        Mdata.action = DRAW_OBJECTIVES;
-        sendMove(&Mdata,&Mresult);
-        MoveData Mdata2;
-        Mdata2.action = CHOOSE_OBJECTIVES;
-        Mdata2.chooseObjectives[0] = true;
-        Mdata2.chooseObjectives[1] = false;
-        Mdata2.chooseObjectives[2] = false;
-        sendMove(&Mdata,&Mresult);
-        getMove(&Mdata,&Mresult);
-        getMove(&Mdata,&Mresult);
-
-    }*/
-    //printBoard();
     quitGame();
     free(tableauTrack);
     freeMatrix(Matrice, Gdata.nbCities);
