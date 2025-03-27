@@ -20,10 +20,10 @@ ResultCode claim(MoveResult* Result){
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = CLAIM_ROUTE;
     char buffer[10];
-    int from = 0;
-    int to = 0;
-    int locomotive = 0;
-    CardColor color = 1;
+    int from;
+    int to;
+    int locomotive;
+    CardColor color;
     printf("Route de : \n");
     fgets(buffer,sizeof(buffer),stdin);
     while (sscanf(buffer,"%d",&from)!=1 || from > 35 || from < 0){
@@ -61,9 +61,9 @@ ResultCode claim(MoveResult* Result){
 ResultCode piocheCarte(MoveResult* Result){
     MoveData* Data = malloc(sizeof(MoveData));
     char buffer[10];
-    int choix = 1;
-    int choix2 = 1;
-    CardColor color = 1;
+    int choix;
+    int choix2;
+    CardColor color;
     ResultCode Code;
 
     printf("Visible : 1 \n Pioche : 2\n");
