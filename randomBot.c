@@ -100,13 +100,13 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     ResultCode Code;
     Data -> action = DRAW_BLIND_CARD;
     Code = sendMove(Data,Result);
-    updateHand(Hand,Result->card);
+    addToHand(Hand,Result->card);
     if (Code != ALL_GOOD){
         return Code;
     }
     Data -> action = DRAW_BLIND_CARD;
     Code = sendMove(Data,Result);
-    updateHand(Hand,Result->card);
+    addToHand(Hand,Result->card);
 
     return Code;
 }
@@ -119,7 +119,7 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
     ClaimRouteMove Move;
     for (int i =0; i < nbTracks; i++){
         CardColor color  = claimableTrack(tab[i],Hand);
-        if (color){
+        if (color!=0){
             Move.nbLocomotives = 0;
             Move.color = color;
             Move.from = tab[i].Ville1;
@@ -127,6 +127,7 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
             Data->claimRoute = Move;
             ResultCode Code = sendMove(Data,Result);
             updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to);
+            removeFromHand(Hand,color,tab[i].Longueur);
             free(Data);
             return Code;
         }

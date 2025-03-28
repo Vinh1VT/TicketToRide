@@ -73,9 +73,14 @@ void parseHand(int Hand[], CardColor starting[]){
 }
 
 
-void updateHand(int Hand[], CardColor color){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
+void addToHand(int Hand[], CardColor color){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     Hand[color-1] += 1;
 }
+void removeFromHand(int Hand[], CardColor color, int n){
+    Hand[color-1] -= n;
+}
+
+
 
 //For the record, this will need to be updated later
 CardColor claimableTrack(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
