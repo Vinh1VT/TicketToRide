@@ -111,3 +111,13 @@ void updateClaimedTrack(Track tab[],int nbTracks,int from, int to){
         }
     }
 }
+
+
+bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
+    for (int i = 0; i<nbTracks; i++){
+        if (claimableTrack(t[i],Hand)){
+            return true;
+        }
+    }
+    return false;
+}

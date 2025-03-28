@@ -13,4 +13,5 @@ void addToHand(int Hand[], CardColor color);
 CardColor claimableTrack(Track t, int Hand[]);
 void updateClaimedTrack(Track tab[],int nbTracks,int from, int to);
 void removeFromHand(int Hand[], CardColor color, int n);
+bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks);
 #endif //FONCTIONS_H

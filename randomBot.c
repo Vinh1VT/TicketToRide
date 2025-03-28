@@ -11,17 +11,9 @@
 #include "fonctions.h"
 
 
-bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
-    for (int i = 0; i<nbTracks; i++){
-        if (claimableTrack(t[i],Hand)){
-            return true;
-        }
-    }
-    return false;
-}
 
 
-ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the bot doesn't care about his objectives so no need to store anything there
+ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for the random bot, the bot doesn't care about his objectives so no need to store anything there
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
     MoveData* Data = malloc(sizeof(MoveData));
@@ -37,6 +29,11 @@ ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the
         if (Code!=ALL_GOOD){
             return Code;
         }
+        for (int i = 0; i<3;i++){
+            if (Data->chooseObjectives[i]){
+                *objectiveDeck -=  1;
+            }
+        }
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
         if (Code != ALL_GOOD){
@@ -47,6 +44,7 @@ ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
+        *objectiveDeck -= 2;
     }else{
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
@@ -58,6 +56,7 @@ ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
+        *objectiveDeck -= 2;
         if (Code != ALL_GOOD){
             return Code;
         }
@@ -67,6 +66,11 @@ ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the
             return Code;
         }
         Code = getMove(Data,Result);
+        for (int i = 0; i<3;i++){
+            if (Data->chooseObjectives[i]){
+                *objectiveDeck -=  1;
+            }
+        }
     }
 
     free(Data);
@@ -76,11 +80,10 @@ ResultCode firstTurnRandomBot(int starter){ //First turn for the random bot, the
 
 ResultCode piocheObjectifRandom(MoveResult* Result){
     MoveData* Data = malloc(sizeof(MoveData));
-    bool choix[3] = {1,1,0};
-    ResultCode Code;
+    bool choix[3] = {0,1,0};
 
     Data -> action = DRAW_OBJECTIVES;
-    Code = sendMove(Data,Result);
+    ResultCode Code = sendMove(Data, Result);
     if (Code != ALL_GOOD){
         return Code;
     }
@@ -97,9 +100,8 @@ ResultCode piocheObjectifRandom(MoveResult* Result){
 ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     //Always draws 2 cards not visible (visible cards would make the code harder for nothing since it would be essentially the same results)
     MoveData* Data = malloc(sizeof(MoveData));
-    ResultCode Code;
     Data -> action = DRAW_BLIND_CARD;
-    Code = sendMove(Data,Result);
+    ResultCode Code = sendMove(Data, Result);
     addToHand(Hand,Result->card);
     if (Code != ALL_GOOD){
         return Code;
@@ -112,14 +114,14 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
 }
 
 ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int Hand[]){
-    //Claim the first claimable track
+    //Claim the first claimable track in the track tab
     //The bot cannot use locomotives
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = CLAIM_ROUTE;
-    ClaimRouteMove Move;
     for (int i =0; i < nbTracks; i++){
         CardColor color  = claimableTrack(tab[i],Hand);
         if (color!=0){
+            ClaimRouteMove Move;
             Move.nbLocomotives = 0;
             Move.color = color;
             Move.from = tab[i].Ville1;
@@ -136,24 +138,56 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
     return LOSING_MOVE;
 }
 
+int randomChoice(bool objectif,bool carte,bool claimable){
+    int choices[3];
+    int count = 0;
+    if (objectif){
+        choices[count] = 1;
+        count++;
+    }
+    if (carte){
+        choices[count] = 2;
+        count++;
+    }
+    if (claimable){
+        choices[count] = 3;
+        count++;
+    }
+    return choices[rand() % count];
+}
+
 void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
     srand(time(NULL));
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
     Result -> state = NORMAL_MOVE;
     printBoard();
+    int cardDeck =97;
+    int objectiveDeck = 30;
     MoveData* Data = malloc(sizeof(MoveData));
-    ResultCode Code = firstTurnRandomBot(starter);
-    int choix;
+    ResultCode Code = firstTurnRandomBot(starter,&objectiveDeck);
 
     while(Result->state == NORMAL_MOVE && Code == ALL_GOOD){
         if (t==ADVERSAIRE){
             Code = getMove(Data,Result);
+            if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
+                cardDeck-=1;
+            }
             if(Data->action == DRAW_OBJECTIVES || Data->action == DRAW_BLIND_CARD || (Data->action == DRAW_CARD && Data->drawCard != LOCOMOTIVE)){
                 if(Code!= ALL_GOOD){
                     break;
                 }
+                if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
+                    cardDeck-=1;
+                }
                 Code = getMove(Data,Result);
+                if (Data->action ==CHOOSE_OBJECTIVES){
+                    for (int i = 0; i<3;i++){
+                        if (Data->chooseObjectives[i]){
+                            objectiveDeck -= 1;
+                        }
+                    }
+                }
             }
 
             if (Data->action == CLAIM_ROUTE){
@@ -162,19 +196,17 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
             t = JOUEUR;
             free(Result->opponentMessage);
         } else{
-            if (isAnyTrackClaimable(tab,Hand,nbTracks)){
-                choix = (rand() % 3) + 1;
-            }else{
-                choix = (rand() % 2) + 1;
-            }
+            int choix = randomChoice(objectiveDeck > 3, cardDeck > 2, isAnyTrackClaimable(tab, Hand, nbTracks));
             printf("Choix : %d\n",choix);
             switch (choix){
             case 1 :
                 Code = piocheObjectifRandom(Result);
+                objectiveDeck -= 1;
                 break;
             case 2:
                 Code = piocheCarteRandom(Result,Hand);
-                    break;
+                cardDeck -= 2;
+                break;
             case 3:
                 Code = placeTrackRandom(Result,tab,nbTracks,Hand);
                 break;
