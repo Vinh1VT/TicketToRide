@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
-
+#include "structs.h"
 #include "tickettorideapi/ticketToRide.h"
 
 void menuChoix(){
@@ -148,12 +148,11 @@ ResultCode piocheCarte(MoveResult* Result){
 ResultCode piocheObjectif(MoveResult* Result){
     MoveData* Data = malloc(sizeof(MoveData));
     char buffer[10];
-    ResultCode Code;
     bool a,b,c;
 
 
     Data -> action = DRAW_OBJECTIVES;
-    Code = sendMove(Data,Result);
+    ResultCode Code = sendMove(Data,Result);
     if (Code!=ALL_GOOD){
         free(Data);
         return Code;
@@ -192,7 +191,6 @@ void manualPlay(int starter){
     printBoard();
     MoveData* Data = malloc(sizeof(MoveData));
     ResultCode Code = ALL_GOOD;
-    char buffer[10];
     int choix;
 
 
@@ -208,6 +206,7 @@ void manualPlay(int starter){
             t = JOUEUR;
             free(Result->opponentMessage);
         }else{
+            char buffer[10];
             menuChoix();
             fgets(buffer,sizeof(buffer),stdin);
             while(sscanf(buffer,"%d", &choix) != 1 || choix > 3 || choix < 1){
@@ -225,7 +224,7 @@ void manualPlay(int starter){
                     Code = piocheObjectif(Result);
                     break;
                 default :
-                    ;
+                    Code = LOSING_MOVE;
             }
 
             t = ADVERSAIRE;

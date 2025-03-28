@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tickettorideapi/ticketToRide.h"
+#include "structs.h"
 #include "fonctions.h"
 #include "manualPlayer.h"
+#include "randomBot.h"
 
 int main(int const argc, char** argv){
 
@@ -12,7 +14,7 @@ int main(int const argc, char** argv){
     GameData Gdata = GameDataDefaults;
     Gsettings.gameType = TRAINING;
     Gsettings.botId = RANDOM_PLAYER;
-    ResultCode Result;
+    int Hand[9];
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
                         .Longueur = 0,
@@ -26,12 +28,15 @@ int main(int const argc, char** argv){
     }
     sendGameSettings(Gsettings,&Gdata);
     //printBoard();
-
+    parseHand(Hand,Gdata.cards);
     Track* tableauTrack = malloc(Gdata.nbTracks * sizeof(Track));
     parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
     Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
     //afficherMatrice(Matrice,Gdata.nbCities);
-    manualPlay(Gdata.starter);
+    //manualPlay(Gdata.starter);
+    randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
+
+
 
     quitGame();
     free(tableauTrack);

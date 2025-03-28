@@ -62,3 +62,47 @@ void freeMatrix(Track*** matrice, int n){
     }
     free(matrice);
 }
+
+void parseHand(int Hand[], CardColor starting[]){
+    for(int i = 0; i<9; i++){
+        Hand[i] =  0;
+    }
+    for(int i = 0; i<4; i++){
+        Hand[starting[i] - 1] = 1;
+    }
+}
+
+
+void updateHand(int Hand[], CardColor color){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
+    Hand[color-1] += 1;
+}
+
+//For the record, this will need to be updated later
+CardColor claimableTrack(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
+    //returns the color with which you can claim 0 if not claimable
+    if(!t.Claimed){
+        if (t.Couleur1 == LOCOMOTIVE){
+            printf("TCHOU TCHOU \n");
+            for (int i = 0; i<9;i++){
+                if (t.Longueur<=Hand[i]){
+                    return i+1;
+                }
+            }
+        } else{
+            if (t.Longueur <= Hand[t.Couleur1-1] ){
+                return t.Couleur1;
+            }else if (t.Double && t.Longueur <= Hand[t.Couleur2-1]){
+                return t.Couleur2;
+            }
+        }
+    }
+    return 0;
+}
+
+void updateClaimedTrack(Track tab[],int nbTracks,int from, int to){
+    for (int i = 0; i<nbTracks;i++){
+        if ((tab[i].Ville1==from && tab[i].Ville2==to )||(tab[i].Ville2==from && tab[i].Ville1==to)){
+            tab[i].Claimed = true;
+        }
+    }
+}
