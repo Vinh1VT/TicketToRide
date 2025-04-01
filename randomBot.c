@@ -22,10 +22,14 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
 
     if (t == ADVERSAIRE){
         Code = getMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         if (Code!=ALL_GOOD){
             return Code;
         }
@@ -36,6 +40,8 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         }
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         if (Code != ALL_GOOD){
             return Code;
         }
@@ -44,10 +50,14 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         *objectiveDeck -= 2;
     }else{
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         if (Code != ALL_GOOD){
             return Code;
         }
@@ -56,16 +66,22 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         *objectiveDeck -= 2;
         if (Code != ALL_GOOD){
             return Code;
         }
 
         Code = getMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
+        free(Result->message);
+        free(Result->opponentMessage);
         for (int i = 0; i<3;i++){
             if (Data->chooseObjectives[i]){
                 *objectiveDeck -=  1;
@@ -84,6 +100,8 @@ ResultCode piocheObjectifRandom(MoveResult* Result){
 
     Data -> action = DRAW_OBJECTIVES;
     ResultCode Code = sendMove(Data, Result);
+    free(Result->message);
+    free(Result->opponentMessage);
     if (Code != ALL_GOOD){
         return Code;
     }
@@ -92,6 +110,8 @@ ResultCode piocheObjectifRandom(MoveResult* Result){
     Data -> chooseObjectives[1] = choix[1];
     Data -> chooseObjectives[2] = choix[2];
     Code = sendMove(Data,Result);
+    free(Result->message);
+    free(Result->opponentMessage);
 
     free(Data);
     return Code;
@@ -102,6 +122,8 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = DRAW_BLIND_CARD;
     ResultCode Code = sendMove(Data, Result);
+    free(Result->message);
+    free(Result->opponentMessage);
     addToHand(Hand,Result->card);
     if (Code != ALL_GOOD){
         return Code;
@@ -109,7 +131,9 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     Data -> action = DRAW_BLIND_CARD;
     Code = sendMove(Data,Result);
     addToHand(Hand,Result->card);
-
+    free(Result->message);
+    free(Result->opponentMessage);
+    free(Data);
     return Code;
 }
 
@@ -128,6 +152,8 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
             Move.to = tab[i].Ville2;
             Data->claimRoute = Move;
             ResultCode Code = sendMove(Data,Result);
+            free(Result->opponentMessage);
+            free(Result->message);
             updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to);
             removeFromHand(Hand,color,tab[i].Longueur);
             free(Data);
@@ -153,6 +179,7 @@ int randomChoice(bool objectif,bool carte,bool claimable){
         choices[count] = 3;
         count++;
     }
+    if (count == 0) return 0;
     return choices[rand() % count];
 }
 
@@ -170,6 +197,8 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
     while(Result->state == NORMAL_MOVE && Code == ALL_GOOD){
         if (t==ADVERSAIRE){
             Code = getMove(Data,Result);
+            free(Result->message);
+            free(Result->opponentMessage);
             if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
                 cardDeck-=1;
             }
@@ -181,6 +210,8 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
                     cardDeck-=1;
                 }
                 Code = getMove(Data,Result);
+                free(Result->message);
+                free(Result->opponentMessage);
                 if (Data->action ==CHOOSE_OBJECTIVES){
                     for (int i = 0; i<3;i++){
                         if (Data->chooseObjectives[i]){
@@ -194,21 +225,20 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
                 updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to);
             }
             t = JOUEUR;
-            free(Result->opponentMessage);
         } else{
-            int choix = randomChoice(objectiveDeck > 3, cardDeck > 2, isAnyTrackClaimable(tab, Hand, nbTracks));
-            printf("Choix : %d\n",choix);
+            int choix = randomChoice(false, cardDeck > 2, isAnyTrackClaimable(tab, Hand, nbTracks));
+            printf("Choix : %d\n", choix);
             switch (choix){
-            case 1 :
+            case 1:
                 Code = piocheObjectifRandom(Result);
                 objectiveDeck -= 1;
                 break;
             case 2:
-                Code = piocheCarteRandom(Result,Hand);
+                Code = piocheCarteRandom(Result, Hand);
                 cardDeck -= 2;
                 break;
             case 3:
-                Code = placeTrackRandom(Result,tab,nbTracks,Hand);
+                Code = placeTrackRandom(Result, tab, nbTracks, Hand);
                 break;
             default:
                 Code = LOSING_MOVE;

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "tickettorideapi/ticketToRide.h"
-#include "structs.h"
 #include "fonctions.h"
 #include "manualPlayer.h"
 #include "randomBot.h"
+#include "structs.h"
+#include "tickettorideapi/ticketToRide.h"
 
 int main(int const argc, char** argv){
 
@@ -40,6 +40,8 @@ int main(int const argc, char** argv){
 
     quitGame();
     free(tableauTrack);
+    free(Gdata.gameName);
+    free(Gdata.trackData);
     freeMatrix(Matrice, Gdata.nbCities);
     return EXIT_SUCCESS;
 }
