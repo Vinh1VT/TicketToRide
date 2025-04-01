@@ -157,3 +157,16 @@ void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, u
         }
     }
 }
+
+
+void freeMessage(MoveResult* Result){
+    free(Result->message);
+    free(Result->opponentMessage);
+}
+
+Objective objectiveCopy(Objective original){
+    Objective copy;
+    copy.score = original.score;
+    copy.from = original.from;
+    copy.to = original.to;
+}

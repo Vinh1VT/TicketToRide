@@ -11,8 +11,6 @@
 #include "fonctions.h"
 
 
-
-
 ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for the random bot, the bot doesn't care about his objectives so no need to store anything there
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
@@ -22,14 +20,12 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
 
     if (t == ADVERSAIRE){
         Code = getMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
@@ -40,8 +36,7 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         }
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         if (Code != ALL_GOOD){
             return Code;
         }
@@ -50,14 +45,12 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         *objectiveDeck -= 2;
     }else{
         Data -> action = DRAW_OBJECTIVES;
         Code = sendMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         if (Code != ALL_GOOD){
             return Code;
         }
@@ -66,22 +59,19 @@ ResultCode firstTurnRandomBot(int starter, int* objectiveDeck){ //First turn for
         Data -> chooseObjectives[1] = choix[1];
         Data -> chooseObjectives[2] = choix[2];
         Code = sendMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         *objectiveDeck -= 2;
         if (Code != ALL_GOOD){
             return Code;
         }
 
         Code = getMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
-        free(Result->message);
-        free(Result->opponentMessage);
+        freeMessage(Result);
         for (int i = 0; i<3;i++){
             if (Data->chooseObjectives[i]){
                 *objectiveDeck -=  1;

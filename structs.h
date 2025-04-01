@@ -29,12 +29,6 @@ struct Track_ {
 
 typedef struct Track_ Track;
 
-struct Objectif_{
-    unsigned int Ville1;
-    unsigned int Ville2;
-    unsigned int Score;
-};
-typedef struct Objectif_ Objectif;
 
 
 #endif //STRUCTS_H
