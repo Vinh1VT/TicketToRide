@@ -9,21 +9,30 @@ typedef enum{
     ADVERSAIRE = 1,
     }Tour;
 
+typedef enum{
+    UNCLAIMED = 0,
+    PLAYER = 1,
+    ADV = 2,
+    NOT_CLAIMABLE = 3 //For virtual track like TrackZero
+}Claim;
+
 struct Track_ {
-    int Ville1;
-    int Ville2;
-    int Longueur;
+    unsigned int Ville1;
+    unsigned int Ville2;
+    unsigned int Longueur;
     CardColor Couleur1;
     bool Double;
     CardColor Couleur2;
-    bool Claimed;
+    Claim Claimed;
 };
+
+
 typedef struct Track_ Track;
 
 struct Objectif_{
-    int Ville1;
-    int Ville2;
-    int Score;
+    unsigned int Ville1;
+    unsigned int Ville2;
+    unsigned int Score;
 };
 typedef struct Objectif_ Objectif;
 

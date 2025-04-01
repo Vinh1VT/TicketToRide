@@ -11,7 +11,8 @@ void freeMatrix(Track*** matrice, int n);
 void parseHand(int Hand[], CardColor starting[]);
 void addToHand(int Hand[], CardColor color);
 CardColor claimableTrack(Track t, int Hand[]);
-void updateClaimedTrack(Track tab[],int nbTracks,int from, int to);
+void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int to, Claim Claimer);
 void removeFromHand(int Hand[], CardColor color, int n);
 bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks);
+void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, unsigned int* Prec);
 #endif //FONCTIONS_H

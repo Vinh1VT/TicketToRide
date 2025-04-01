@@ -154,7 +154,7 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
             ResultCode Code = sendMove(Data,Result);
             free(Result->opponentMessage);
             free(Result->message);
-            updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to);
+            updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to,PLAYER);
             removeFromHand(Hand,color,tab[i].Longueur);
             free(Data);
             return Code;
@@ -222,7 +222,7 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
             }
 
             if (Data->action == CLAIM_ROUTE){
-                updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to);
+                updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to,ADV);
             }
             t = JOUEUR;
         } else{

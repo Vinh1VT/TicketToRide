@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "tickettorideapi/ticketToRide.h"
 #include "fonctions.h"
+
+#include <limits.h>
+
 void parseTrack(Track* tableau,int* trackData, int nbTracks){
     int* p = trackData;
     for(int i =0; i<nbTracks;i++){
@@ -13,7 +16,7 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
         if(tableau[i].Couleur2){
             tableau[i].Double = true;
         }
-        tableau[i].Claimed = false;
+        tableau[i].Claimed = UNCLAIMED;
         p = p + 5;
     }
 }
@@ -85,7 +88,7 @@ void removeFromHand(int Hand[], CardColor color, int n){
 //For the record, this will need to be updated later
 CardColor claimableTrack(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     //returns the color with which you can claim 0 if not claimable
-    if(!t.Claimed){
+    if(t.Claimed == 0){
         if (t.Couleur1 == LOCOMOTIVE){
             printf("TCHOU TCHOU \n");
             for (int i = 0; i<9;i++){
@@ -104,10 +107,10 @@ CardColor claimableTrack(Track t, int Hand[]){ //Hand must be an integer tab of 
     return 0;
 }
 
-void updateClaimedTrack(Track tab[],int nbTracks,int from, int to){
+void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int to, Claim Claimer){
     for (int i = 0; i<nbTracks;i++){
         if ((tab[i].Ville1==from && tab[i].Ville2==to )||(tab[i].Ville2==from && tab[i].Ville1==to)){
-            tab[i].Claimed = true;
+            tab[i].Claimed = Claimer;
         }
     }
 }
@@ -120,4 +123,37 @@ bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
         }
     }
     return false;
+}
+
+int distanceMini(unsigned int* D, bool visited[],unsigned int N){
+    unsigned int min = INT_MAX;
+    int indice_min;
+    for (int i = 0; i<N;i++){
+        if (visited[i] == false && D[i] < min){
+            min = D[i];
+            indice_min = i;
+        }
+    }
+    return indice_min;
+}
+
+void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, unsigned int* Prec){
+    bool visited[N];
+    int u;
+    for(int i = 0;i<N;i++){
+        D[i] = INT_MAX;
+        visited[i] = false;
+    }
+    D[src] = 0;
+
+    for (int i = 0; i < N-1;i++){
+        u = distanceMini(D,visited,N);
+        visited[u] = true;
+        for (int v = 0; v<N;v++){
+            if (visited[v] == false && Matrix[u][v] != NULL && D[u] + Matrix[u][v]->Longueur < D[v]){
+                D[v] =D[u] + Matrix[u][v]->Longueur;
+                Prec[v] = u;
+            }
+        }
+    }
 }

@@ -18,7 +18,7 @@ int main(int const argc, char** argv){
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
                         .Longueur = 0,
-                        .Claimed = true};
+                        .Claimed = NOT_CLAIMABLE};
 
     connectToCGS("cgs.valentin-lelievre.com",15001);
     if (argc>1){
@@ -35,7 +35,6 @@ int main(int const argc, char** argv){
     //afficherMatrice(Matrice,Gdata.nbCities);
     //manualPlay(Gdata.starter);
     randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
-
 
 
     quitGame();
