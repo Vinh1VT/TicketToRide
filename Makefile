@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
 OBJ_DIR = ./objects
-SRCS = tickettorideapi/codingGameServer.c tickettorideapi/ticketToRide.c fonctions.c projet.c manualPlayer.c randomBot.c firstBot.c
+SRCS = tickettorideapi/clientAPI.c tickettorideapi/ticketToRide.c fonctions.c projet.c manualPlayer.c randomBot.c firstBot.c
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 TARGET = projet
 

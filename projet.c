@@ -10,22 +10,18 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    GameSettings Gsettings = GameSettingsDefaults;
-    GameData Gdata = GameDataDefaults;
-    Gsettings.gameType = TRAINING;
-    Gsettings.botId = RANDOM_PLAYER;
+    char* Gsettings = "TRAINING PLAY_RANDOM";
+    GameData Gdata;
+    //Gsettings.gameType = TRAINING;
+    //Gsettings.botId = RANDOM_PLAYER;
     int Hand[9];
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
                         .Longueur = 0,
                         .Claimed = NOT_CLAIMABLE};
 
-    connectToCGS("cgs.valentin-lelievre.com",15001);
-    if (argc>1){
-        sendName(argv[1]);
-    }else{
-        sendName("Vinh");
-    }
+    connectToCGS("82.29.170.160",15001,argv[1]);
+
     sendGameSettings(Gsettings,&Gdata);
     //printBoard();
     parseHand(Hand,Gdata.cards);

@@ -90,8 +90,8 @@ ResultCode piocheObjectifRandom(MoveResult* Result){
 
     Data -> action = DRAW_OBJECTIVES;
     ResultCode Code = sendMove(Data, Result);
-    free(Result->message);
-    free(Result->opponentMessage);
+    //free(Result->message);
+    //free(Result->opponentMessage);
     if (Code != ALL_GOOD){
         return Code;
     }
@@ -100,8 +100,8 @@ ResultCode piocheObjectifRandom(MoveResult* Result){
     Data -> chooseObjectives[1] = choix[1];
     Data -> chooseObjectives[2] = choix[2];
     Code = sendMove(Data,Result);
-    free(Result->message);
-    free(Result->opponentMessage);
+    //free(Result->message);
+    //free(Result->opponentMessage);
 
     free(Data);
     return Code;
@@ -112,8 +112,8 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = DRAW_BLIND_CARD;
     ResultCode Code = sendMove(Data, Result);
-    free(Result->message);
-    free(Result->opponentMessage);
+    //free(Result->message);
+    //free(Result->opponentMessage);
     addToHand(Hand,Result->card);
     if (Code != ALL_GOOD){
         return Code;
@@ -121,8 +121,8 @@ ResultCode piocheCarteRandom(MoveResult* Result,int Hand[]){
     Data -> action = DRAW_BLIND_CARD;
     Code = sendMove(Data,Result);
     addToHand(Hand,Result->card);
-    free(Result->message);
-    free(Result->opponentMessage);
+    //free(Result->message);
+    //free(Result->opponentMessage);
     free(Data);
     return Code;
 }
@@ -133,7 +133,7 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = CLAIM_ROUTE;
     for (int i =0; i < nbTracks; i++){
-        CardColor color  = claimableTrack(tab[i],Hand);
+        CardColor color  = claimableTrackWithoutLocomotives(tab[i],Hand);
         if (color!=0){
             ClaimRouteMove Move;
             Move.nbLocomotives = 0;
@@ -142,8 +142,8 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
             Move.to = tab[i].Ville2;
             Data->claimRoute = Move;
             ResultCode Code = sendMove(Data,Result);
-            free(Result->opponentMessage);
-            free(Result->message);
+            //free(Result->opponentMessage);
+            //free(Result->message);
             updateClaimedTrack(tab,nbTracks,Data->claimRoute.from,Data->claimRoute.to,PLAYER);
             removeFromHand(Hand,color,tab[i].Longueur);
             free(Data);
@@ -182,13 +182,16 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
     int cardDeck =97;
     int objectiveDeck = 30;
     MoveData* Data = malloc(sizeof(MoveData));
+    printHand(Hand);
     ResultCode Code = firstTurnRandomBot(starter,&objectiveDeck);
 
     while(Result->state == NORMAL_MOVE && Code == ALL_GOOD){
+        //printHand(Hand);
+        printBoard();
         if (t==ADVERSAIRE){
             Code = getMove(Data,Result);
-            free(Result->message);
-            free(Result->opponentMessage);
+            //free(Result->message);
+            //free(Result->opponentMessage);
             if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
                 cardDeck-=1;
             }
@@ -200,8 +203,8 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
                     cardDeck-=1;
                 }
                 Code = getMove(Data,Result);
-                free(Result->message);
-                free(Result->opponentMessage);
+                //free(Result->message);
+                //free(Result->opponentMessage);
                 if (Data->action ==CHOOSE_OBJECTIVES){
                     for (int i = 0; i<3;i++){
                         if (Data->chooseObjectives[i]){
@@ -235,7 +238,6 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
             }
             t = ADVERSAIRE;
         }
-        printBoard();
     }
     free(Data);
     free(Result);

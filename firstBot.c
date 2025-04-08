@@ -3,6 +3,7 @@
 //
 #include "firstBot.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "fonctions.h"
@@ -18,8 +19,6 @@ int max(unsigned int a,  unsigned int b, unsigned int c){
         return c;
     }
 }
-
-
 
 void objectiveChoice(bool choice[],Objective tab[],bool firstTurn){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
@@ -51,9 +50,6 @@ void objectiveChoice(bool choice[],Objective tab[],bool firstTurn){
     }
 }
 
-
-
-
 ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]){
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
@@ -63,12 +59,12 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     if (t == ADVERSAIRE){
         //Gets the opponent first move (Drawing objectives)
         Code = getMove(Data, Result);
-        freeMessage(Result);
+        //freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
-        freeMessage(Result);
+        //freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
@@ -149,11 +145,72 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
 
 
 
-void firstBotPlay(int starter,Track tab[],int nbTracks,int Hand[]){
+void firstBotPlay(int starter,Track tab[],int nbTracks,int Hand[], Track*** Matrix){
 //This bot will try to do the shortest path to his objectives, without any priority on which track to claim
 //it will choose the objectives that always get the most points
     int cardDeck = 97;
     int objectiveDeck = 30;
-    Objective objectiveTab[10];
+    Objective objectiveTab[5];
+    int objectiveCount = 2;
+    MoveResult* Result = malloc(sizeof(MoveResult));
+    MoveData* Data = malloc(sizeof(MoveData));
+    Result -> state = NORMAL_MOVE;
+    ResultCode Code= firstTurnBot(starter,&objectiveDeck,objectiveTab);
+    //so the first objective of the list is the one with the biggest score (might already be true though)
+    sortObjective(objectiveTab,objectiveCount);
+    Tour t = starter;
 
+    //Dijsktra initialization
+    unsigned int* D[nbTracks];
+    unsigned int* Prec[nbTracks];
+    Dijkstra(objectiveTab[0].from, Matrix,nbTracks,D,Prec);
+
+    Track* next = Matrix[objectiveTab[0].to][(unsigned)Prec[objectiveTab[0].to]];
+
+
+
+    //Main Loop of play
+    while (Result->state == NORMAL_MOVE && Code == ALL_GOOD){
+        printBoard();
+        if (t==ADVERSAIRE){
+            Code = getMove(Data,Result);
+            //free(Result->message);
+            //free(Result->opponentMessage);
+            if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
+                cardDeck-=1;
+            }
+            if(Data->action == DRAW_OBJECTIVES || Data->action == DRAW_BLIND_CARD || (Data->action == DRAW_CARD && Data->drawCard != LOCOMOTIVE)){
+                if(Code!= ALL_GOOD){
+                    break;
+                }
+                if (Data->action == DRAW_CARD || Data->action == DRAW_BLIND_CARD){
+                    cardDeck-=1;
+                }
+                Code = getMove(Data,Result);
+                //free(Result->message);
+                //free(Result->opponentMessage);
+                if (Data->action ==CHOOSE_OBJECTIVES){
+                    for (int i = 0; i<3;i++){
+                        if (Data->chooseObjectives[i]){
+                            objectiveDeck -= 1;
+                        }
+                    }
+                }
+            }
+        }else{
+            CardColor color;
+            color = 0;
+            //HAHAHAHHAHAHHA THE FUNCTION TO ASSIGN THIS DOESN'T WORK BECAUSE IT NEEDED WAY LESS WORK FOR THE RANDOM BOT
+            if (color != 0){
+                //TODO : CLAIM TRACK AND UPDATE THE NEXT TRACK TO CLAIM
+            }
+
+        }
+    }
+
+
+
+    free(Data);
+    free(Result);
+    
 }

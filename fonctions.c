@@ -71,7 +71,7 @@ void parseHand(int Hand[], CardColor starting[]){
         Hand[i] =  0;
     }
     for(int i = 0; i<4; i++){
-        Hand[starting[i] - 1] = 1;
+        Hand[starting[i] - 1] += 1;
     }
 }
 
@@ -86,7 +86,7 @@ void removeFromHand(int Hand[], CardColor color, int n){
 
 
 //For the record, this will need to be updated later
-CardColor claimableTrack(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
+CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     //returns the color with which you can claim 0 if not claimable
     if(t.Claimed == 0){
         if (t.Couleur1 == LOCOMOTIVE){
@@ -118,7 +118,7 @@ void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int
 
 bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
     for (int i = 0; i<nbTracks; i++){
-        if (claimableTrack(t[i],Hand)){
+        if (claimableTrackWithoutLocomotives(t[i],Hand)){
             return true;
         }
     }
@@ -169,4 +169,34 @@ Objective objectiveCopy(Objective original){
     copy.score = original.score;
     copy.from = original.from;
     copy.to = original.to;
+    return copy;
+}
+
+void printHand(int Hand[]){
+    for (int i = 0;i<9;i++){
+        printf("%d : %d \n", i+1,Hand[i]);
+    }
+}
+
+void removeObjective(Objective tab[], Objective o, int objectiveCount){
+    int index = 200;
+    for (int i = 0; i<objectiveCount ;i++){
+        if (tab[i].from == o.from && tab[i].to == o.to && tab[i].score == o.score ){
+            index = i;
+        }
+        if (i>index){
+            tab[i-1] = tab[i];
+        }
+    }
+}
+
+void sortObjective(Objective tab[],int objectiveCount){
+    //Sort by score the objective tab, it's a bubble sort because why tf would I implement a harder one
+    for (int i =0; i<objectiveCount-1;i++){
+        if (tab[i+1].score<tab[i].score){
+            Objective temp = tab[i];
+            tab[i] = tab[i+1];
+            tab[i+1] = temp;
+        }
+    }
 }
