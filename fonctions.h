@@ -20,4 +20,5 @@ Objective objectiveCopy(Objective original);
 void printHand(int Hand[]);
 void removeObjective(Objective tab[], Objective o, int objectiveCount);
 void sortObjective(Objective tab[],int objectiveCount);
+CardColor claimableTrack(Track t, int Hand[], int* locomotives);
 #endif //FONCTIONS_H

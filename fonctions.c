@@ -85,10 +85,9 @@ void removeFromHand(int Hand[], CardColor color, int n){
 
 
 
-//For the record, this will need to be updated later
 CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     //returns the color with which you can claim 0 if not claimable
-    if(t.Claimed == 0){
+    if(t.Claimed == UNCLAIMED){
         if (t.Couleur1 == LOCOMOTIVE){
             printf("TCHOU TCHOU \n");
             for (int i = 0; i<9;i++){
@@ -106,6 +105,25 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be 
     }
     return 0;
 }
+
+CardColor claimableTrack(Track t, int Hand[], int* locomotives){
+    CardColor color = claimableTrackWithoutLocomotives(t,Hand);
+    if (color == 0){
+        CardColor C1 = t.Couleur1;
+        CardColor C2 = t.Couleur2;
+        for (int i = 0; i<Hand[8];i++){
+            if (t.Longueur <= Hand[C1-1] + i){
+                color = C1;
+                *locomotives = i;
+            }else if (t.Longueur <= Hand[C2-1]){
+                color = C2;
+                *locomotives = i;
+            }
+        }
+    }
+    return color;
+}
+
 
 void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int to, Claim Claimer){
     for (int i = 0; i<nbTracks;i++){
