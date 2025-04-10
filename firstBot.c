@@ -143,6 +143,77 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     return Code;
 }
 
+ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Track* track){
+    MoveData* Data = malloc(sizeof(MoveData));
+
+    Data->action = CLAIM_ROUTE;
+    ClaimRouteMove claim = {
+        .from = track->Ville1,
+        .to = track->Ville2,
+        .color = color,
+        .nbLocomotives = locomotives
+    };
+    Data->claimRoute = claim;
+
+    ResultCode Code = sendMove(Data, Result);
+
+    free(Data);
+    return Code;
+}
+
+CardColor chooseColorTarget(int Hand[], Track* track){
+    if (Hand[track->Couleur1-1]>= Hand[track->Couleur2-1]){
+        return track->Couleur1;
+    }
+    return track->Couleur2;
+}
+
+bool targetOnBoard(CardColor target){
+    ResultCode Code;
+    BoardState Board;
+
+    Code = getBoardState(&Board);
+
+    if (Code != ALL_GOOD){
+        return false;
+    }
+
+    for (int i = 0;i<5;i++){
+        if (Board.card[i] == target){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+ResultCode drawCardBot(MoveResult* Result, Hand[], CardColor target){
+    MoveData* Data = malloc(sizeof(MoveData));
+    ResultCode Code;
+
+    for (int i = 0 ; i<2 ; i++){ //Rarely seen a more useless loop, but oh well the code does look better with it
+        if (targetOnBoard(target)){
+            Data->action = DRAW_CARD;
+            Data->drawCard = target;
+            Code = sendMove(Data,Result);
+            if (Code!=ALL_GOOD){
+                return Code;
+            }
+            addToHand(Hand,target);
+        }else{
+            Data -> action = DRAW_BLIND_CARD;
+            Code = sendMove(Data,Result);
+            if (Code != ALL_GOOD){
+                return Code;
+            }
+            addToHand(Hand,Result->card);
+        }
+    }
+
+    free(Data);
+    return Code;
+}
 
 
 void firstBotPlay(int starter,Track tab[],int nbTracks,int Hand[], Track*** Matrix){
@@ -161,12 +232,10 @@ void firstBotPlay(int starter,Track tab[],int nbTracks,int Hand[], Track*** Matr
     Tour t = starter;
 
     //Dijsktra initialization
-    unsigned int* D[nbTracks];
-    unsigned int* Prec[nbTracks];
+    unsigned int D[nbTracks];
+    unsigned int Prec[nbTracks];
     Dijkstra(objectiveTab[0].from, Matrix,nbTracks,D,Prec);
-
     Track* next = Matrix[objectiveTab[0].to][(unsigned)Prec[objectiveTab[0].to]];
-
 
 
     //Main Loop of play
@@ -198,16 +267,23 @@ void firstBotPlay(int starter,Track tab[],int nbTracks,int Hand[], Track*** Matr
                 }
             }
         }else{
+            int locomotives;
             CardColor color;
-            color = 0;
-            //HAHAHAHHAHAHHA THE FUNCTION TO ASSIGN THIS DOESN'T WORK BECAUSE IT NEEDED WAY LESS WORK FOR THE RANDOM BOT
+            CardColor target;
+            target = chooseColorTarget(Hand,next);
+            color = claimableTrack(*next,Hand,&locomotives);
+            //TODO : Update the dijsktra to look for the next road to take, and the target color
             if (color != 0){
                 //TODO : CLAIM TRACK AND UPDATE THE NEXT TRACK TO CLAIM
-            }
+                Code = claimRouteBot(Result,color,locomotives,next);
 
+            }else{
+                drawCardBot(Result,Hand,target); //it never draws locmotives (except by drawing blindly), but oh well
+                cardDeck -= 2;
+
+            }
         }
     }
-
 
 
     free(Data);

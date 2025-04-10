@@ -188,6 +188,8 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
     while(Result->state == NORMAL_MOVE && Code == ALL_GOOD){
         //printHand(Hand);
         printBoard();
+
+        if (Result->state!=0) printf("\n\n\n\n %d \n\n\n\n",Result->state);
         if (t==ADVERSAIRE){
             Code = getMove(Data,Result);
             //free(Result->message);
