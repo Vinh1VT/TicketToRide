@@ -47,7 +47,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     MoveData* Data = malloc(sizeof(MoveData));
     ResultCode Code;
     bool choice[3] = {false,false,false};
-    FILE* f = fopen("objective","a"); //for debug purspose
     if (t == ADVERSAIRE){
         //Gets the opponent first move (Drawing objectives)
         Code = getMove(Data, Result);
@@ -81,7 +80,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         for (int i =0 ; i<3 ; i++){
             if (choice[i]){
                 objectiveTab[p] = objectiveCopy(Result->objectives[i]);
-                fprintf(f,"%u -> %u \n",Result->objectives[i].from, Result->objectives[i].to);
                 p++;
             }
             Data -> chooseObjectives[i] = choice[i];
@@ -104,7 +102,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         for (int i =0 ; i<3 ; i++){
             if (choice[i]){
                 objectiveTab[p] = objectiveCopy(Result->objectives[i]);
-                fprintf(f,"%u -> %u \n",Result->objectives[i].from, Result->objectives[i].to);
                 p++;
             }
             Data -> chooseObjectives[i] = choice[i];
@@ -131,7 +128,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         }
 
     }
-    fclose(f);
     free(Result);
     free(Data);
     return Code;
@@ -291,7 +287,6 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
             }
             t = JOUEUR;
         }else{
-            //printf("%d->%d\n",objectiveTab[0].from,objectiveTab[0].to);
             int locomotives = 0;
             CardColor targetColor = chooseColorTarget(Hand, nextTrack);
             CardColor color = claimableTrack(*nextTrack, Hand, &locomotives);
@@ -300,7 +295,6 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
             //Dijsktra and objectives update
             Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
             if (D[objectiveTab[0].to] == 0){
-                printf("YOUHOU\n");
                 if (objectiveCount == 2){
                     objectiveTab[0] = objectiveTab[1]; //Shift left of objectives, I hope this won't segfault or anything
                     objectiveTab[1].from = 0;
@@ -347,9 +341,7 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
                         drawObjectiveMove->chooseObjectives[i] = choice[i];
                         if (choice[i] == 1){
                             objectiveTab[0] = objectiveCopy(Result->objectives[i]);
-                            FILE* f = fopen("objective","a");
-                            fprintf(f,"%u -> %u \n",objectiveTab[0].from,objectiveTab[0].to);
-                            fclose(f);
+
                         }
                     }
                     Code = sendMove(drawObjectiveMove,Result);
