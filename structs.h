@@ -13,7 +13,7 @@ typedef enum{
     UNCLAIMED = 0,
     PLAYER = 1,
     ADV = 2,
-    NOT_CLAIMABLE = 3 //For virtual track like TrackZero
+    NOT_CLAIMABLE = 3 //For virtual tracks like TrackZero
 }Claim;
 
 struct Track_ {

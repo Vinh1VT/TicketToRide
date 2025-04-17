@@ -4,6 +4,7 @@
 #include "fonctions.h"
 
 #include <limits.h>
+#include <bits/local_lim.h>
 
 void parseTrack(Track* tableau,int* trackData, int nbTracks){
     int* p = trackData;
@@ -44,14 +45,14 @@ Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities, Track
 }
 
 
-void afficherMatrice(Track*** matrice, int n){
+void afficherMatrice(FILE* stream, Track*** matrice, int n){
     for(int ligne = 0; ligne<n;ligne++){
         printf("%d : ",ligne);
         for(int colonne=0;colonne<n;colonne++){
           if(matrice[ligne][colonne] == NULL){
-          	printf("x ");
+          	fprintf(stream,"x ");
           }else{
-            printf("%d ",matrice[ligne][colonne]->Longueur);
+            fprintf(stream,"%p ",matrice[ligne][colonne]);
           }
         }
         printf("\n");
@@ -89,36 +90,47 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be 
     //returns the color with which you can claim 0 if not claimable
     if(t.Claimed == UNCLAIMED){
         if (t.Couleur1 == LOCOMOTIVE){
-            printf("TCHOU TCHOU \n");
-            for (int i = 0; i<9;i++){
-                if (t.Longueur<=Hand[i]){
-                    return i+1;
+            for (int i = 1; i<9;i++){
+                if (t.Longueur<=Hand[i-1]){
+                    return i;
                 }
             }
         } else{
             if (t.Longueur <= Hand[t.Couleur1-1] ){
                 return t.Couleur1;
-            }else if (t.Double && t.Longueur <= Hand[t.Couleur2-1]){
+            }else if (t.Couleur2 != NONE && t.Longueur <= Hand[t.Couleur2-1]){
                 return t.Couleur2;
             }
         }
     }
-    return 0;
+    return NONE;
 }
 
 CardColor claimableTrack(Track t, int Hand[], int* locomotives){
     CardColor color = claimableTrackWithoutLocomotives(t,Hand);
-    if (color == 0){
+    if (t.Claimed == UNCLAIMED && color == NONE){
+        printf("WTF I DONT UNDERSTAND WHY THIS DONT FCKING WORK PLS PLS PLS PLS\n");
         CardColor C1 = t.Couleur1;
         CardColor C2 = t.Couleur2;
-        for (int i = 0; i<Hand[8];i++){
-            if (t.Longueur <= Hand[C1-1] + i){
-                color = C1;
-                *locomotives = i;
-            }else if (t.Longueur <= Hand[C2-1]){
-                color = C2;
-                *locomotives = i;
+        if (C1 == LOCOMOTIVE){
+            printf("CAS 1\n");
+            for (int i = 1; i<9 ; i++){
+                if (Hand[8] >= t.Longueur - Hand[i-1]){
+                    color = i;
+                    *locomotives = t.Longueur - Hand[i-1];
+                    break;
+                }
             }
+        }else if (Hand[8] >= t.Longueur - Hand[C1-1]){
+            printf("CAS 2\n");
+            color = C1;
+            *locomotives = t.Longueur - Hand[C1-1];
+        }else if (C2 != NONE && Hand[8]>= t.Longueur - Hand[C2-1]){
+            printf("CAS 3\n");
+            color = C2;
+            *locomotives = t.Longueur - Hand[C2-1];
+        }else{
+            color = NONE;
         }
     }
     return color;
@@ -143,9 +155,9 @@ bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
     return false;
 }
 
-int distanceMini(unsigned int* D, bool visited[],unsigned int N){
+int distanceMini(unsigned int* D, bool visited[], unsigned int N){
     unsigned int min = INT_MAX;
-    int indice_min;
+    int indice_min = -1;
     for (int i = 0; i<N;i++){
         if (visited[i] == false && D[i] < min){
             min = D[i];
@@ -155,22 +167,23 @@ int distanceMini(unsigned int* D, bool visited[],unsigned int N){
     return indice_min;
 }
 
-void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, unsigned int* Prec){
+void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, int* Prec){
     bool visited[N];
-    int u;
-    for(int i = 0;i<N;i++){
+    for (int i = 0; i<N;i++){//Reset the Disjktra algorithm, IDK if it will fix bugs and infinite cycles, but I sure hope so
         D[i] = INT_MAX;
+        Prec[i] = -1;
         visited[i] = false;
     }
     D[src] = 0;
-
     for (int i = 0; i < N-1;i++){
-        u = distanceMini(D,visited,N);
-        visited[u] = true;
-        for (int v = 0; v<N;v++){
-            if (visited[v] == false && Matrix[u][v] != NULL && D[u] + Matrix[u][v]->Longueur < D[v]){
-                D[v] =D[u] + Matrix[u][v]->Longueur;
-                Prec[v] = u;
+        int u = distanceMini(D, visited, N);
+        if (u!=-1){
+            visited[u] = true;
+            for (int v = 0; v<N;v++){
+                if ((D[u] != INT_MAX) && (visited[v] == false) && (Matrix[u][v] != NULL) && (D[u] + Matrix[u][v]->Longueur < D[v])){
+                    D[v] = D[u] + Matrix[u][v]->Longueur;
+                    Prec[v] = u;
+                }
             }
         }
     }
@@ -218,3 +231,60 @@ void sortObjective(Objective tab[],int objectiveCount){
         }
     }
 }
+
+CardColor maxHand(int Hand[]){
+    int max = 0;
+    for (int i = 0; i<8 ; i++){
+        if (Hand[i]>max){
+            max = i + 1;
+        }
+    }
+    return max;
+}
+
+int nbCardInHand(int Hand[]){
+    int total = 0;
+    for (int i  = 0; i<9;i++){
+        total += Hand[i];
+    }
+    return total;
+}
+
+unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
+    //returns the max out of 3 numbers, useful for the choice function
+    if (a>b && a >c){
+        return a;
+    }else if (b>a && b >c){
+        return b;
+    }
+    return c;
+}
+
+
+void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
+    unsigned int arr[3] = {0,0,0};
+
+    for (int i =0 ; i <3 ;i++){
+        unsigned int D[nbCities];
+        int Prec[nbCities];
+        Dijkstra(newObjectives[i].from,Matrix,nbCities,D,Prec);
+        if (D[newObjectives[i].to]==0){
+            choice[i] = 2;
+            *objectiveDeck -=1;
+        }else{
+            arr[i] = newObjectives[i].score;
+        }
+    }
+
+    unsigned int maxScore = max(arr[0],arr[1],arr[2]);
+
+    for (int i = 0;i<3;i++){
+        if (newObjectives[i].score == maxScore){
+            choice[i] = 1;
+            *objectiveDeck -= 1;
+            *objectiveCount += 1;
+        }
+    }
+
+}
+
