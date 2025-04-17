@@ -187,7 +187,6 @@ bool targetColorOnBoard(CardColor target){
     return false;
 }
 
-
 ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target){
     MoveData* Data = malloc(sizeof(MoveData));
     ResultCode Code;
@@ -315,11 +314,13 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
                 }
             }
             while (objectiveCount != 0 && nextTrack->Longueur == 0){
-                Track* nextTrack2 = Matrix[nextTrack->Ville2][Prec[nextTrack->Ville2]];
-                if (nextTrack != nextTrack2){
+                unsigned int Ville = nextTrack->Ville2;
+                Track* nextTrack2 = Matrix[Ville][Prec[Ville]];
+                if ( nextTrack != nextTrack2){
                     nextTrack = nextTrack2;
                 }else{
-                    nextTrack = Matrix[nextTrack->Ville1][Prec[nextTrack->Ville1]];
+                    Ville = nextTrack->Ville1;
+                    nextTrack = Matrix[Ville][Prec[Ville]];
                 }
             }
 
@@ -328,15 +329,9 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
             if (objectiveCount > 0){
                 if (color != 0){
                     Code = claimRouteBot(Result,color,&locomotives,nextTrack,Hand);
-                }else /*if (nbCardInHand(Hand) > 45){ //To avoid overflowing the hand, the bot claims the next available track
-                    FILE * f= fopen("before","w");
-                    afficherMatrice(f,Matrix,nbCities);
-                    fclose(f);
+                }else if (nbCardInHand(Hand) > 45){ //To avoid overflowing the hand, the bot claims the next available track
                     Code = claimNextRoute(Result,nextTrack,Hand,Prec, Matrix);
-                    f = fopen("after","w");
-                    afficherMatrice(f,Matrix,nbCities);
-                    fclose(f);
-                }else*/{
+                }else{
                     Code = drawCardBot(Result,Hand,targetColor); //it never draws locmotives (except by drawing blindly), but oh well
                     cardDeck -= 2;
                 }
@@ -358,6 +353,8 @@ void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCit
                         }
                     }
                     Code = sendMove(drawObjectiveMove,Result);
+                    Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
+                    nextTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
                 }
                 free(drawObjectiveMove);
             }

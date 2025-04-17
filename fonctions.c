@@ -288,3 +288,15 @@ void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int
 
 }
 
+void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix){ //This function was implemented strictly for debug,
+    //bcs sometimes nextTrack decided his address should be 0x131
+    int v = dest;
+    while (v!=src){
+        fprintf(stream,"%d->%d\n",v,Prec[v]);
+        Track* track = Matrix[v][Prec[v]];
+        fprintf(stream,"%p\n",track);
+        v = Prec[v];
+    }
+}
+
+
