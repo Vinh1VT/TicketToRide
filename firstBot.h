@@ -6,7 +6,7 @@
 #include "structs.h"
 
 
-void firstBotPlay(int starter,int nbTracks,int Hand[], Track*** Matrix,int nbCities);
+void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities);
 
 
 #endif //FIRSTBOT_H

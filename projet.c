@@ -16,8 +16,8 @@ int main(int const argc, char** argv){
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
-    FILE* f = fopen("objective","w");
-    fclose(f);//empties the log objective file, for debug purposes
+    /*FILE* f = fopen("objective","w");
+    fclose(f);//empties the log objective file, for debug purposes*/
     int Hand[9];
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
@@ -37,7 +37,7 @@ int main(int const argc, char** argv){
 
     //randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
 
-    firstBotPlay(Gdata.starter,Gdata.nbTracks,Hand, Matrice,Gdata.nbCities);
+    firstBotPlay(Gdata.starter,Hand, Matrice,Gdata.nbCities);
 
     quitGame();
     free(Gdata.gameName);
