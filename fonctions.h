@@ -20,7 +20,7 @@ Objective objectiveCopy(Objective original);
 void printHand(int Hand[]);
 void removeObjective(Objective tab[], Objective o, int objectiveCount);
 void sortObjective(Objective tab[],int objectiveCount);
-CardColor claimableTrack(Track t, int Hand[], int* locomotives);
+CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon);
 CardColor maxHand(int Hand[]);
 int nbCardInHand(int Hand[]);
 unsigned int max(unsigned int a,  unsigned int b, unsigned int c);

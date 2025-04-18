@@ -106,14 +106,12 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be 
     return NONE;
 }
 
-CardColor claimableTrack(Track t, int Hand[], int* locomotives){
+CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon){
     CardColor color = claimableTrackWithoutLocomotives(t,Hand);
     if (t.Claimed == UNCLAIMED && color == NONE){
-        printf("WTF I DONT UNDERSTAND WHY THIS DONT FCKING WORK PLS PLS PLS PLS\n");
         CardColor C1 = t.Couleur1;
         CardColor C2 = t.Couleur2;
         if (C1 == LOCOMOTIVE){
-            printf("CAS 1\n");
             for (int i = 1; i<9 ; i++){
                 if (Hand[8] >= t.Longueur - Hand[i-1]){
                     color = i;
@@ -122,16 +120,17 @@ CardColor claimableTrack(Track t, int Hand[], int* locomotives){
                 }
             }
         }else if (Hand[8] >= t.Longueur - Hand[C1-1]){
-            printf("CAS 2\n");
             color = C1;
             *locomotives = t.Longueur - Hand[C1-1];
         }else if (C2 != NONE && Hand[8]>= t.Longueur - Hand[C2-1]){
-            printf("CAS 3\n");
             color = C2;
             *locomotives = t.Longueur - Hand[C2-1];
         }else{
             color = NONE;
         }
+    }
+    if (t.Longueur > wagon){
+        return NONE;
     }
     return color;
 }

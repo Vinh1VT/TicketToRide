@@ -133,7 +133,7 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     return Code;
 }
 
-ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Track* track,int Hand[]){
+ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Track* track,int Hand[], int* wagon){
     MoveData* Data = malloc(sizeof(MoveData));
 
     Data->action = CLAIM_ROUTE;
@@ -144,18 +144,18 @@ ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Trac
         .nbLocomotives = locomotives
     };
     Data->claimRoute = claim;
+    *wagon -= track->Longueur;
     Hand[8] -= locomotives;
     Hand[color-1] -= track->Longueur - locomotives;
     ResultCode Code = sendMove(Data, Result);
     track->Claimed = PLAYER;
     track->Longueur = 0;
-
     free(Data);
     return Code;
 }
 
-CardColor chooseColorTarget(int Hand[], Track* track){
-    if (track->Couleur1 == LOCOMOTIVE){
+CardColor chooseColorTarget(int Hand[], Track* track, int Prec[],Track*** Matrix){ //the target color is the color we need the most to complete the path
+    /*if (track->Couleur1 == LOCOMOTIVE){
         return maxHand(Hand);
     }
     else{
@@ -163,7 +163,33 @@ CardColor chooseColorTarget(int Hand[], Track* track){
             return track->Couleur1;
         }
         return track->Couleur2;
+    }*/
+    int targets[9] = {0,0,0,0,0,0,0,0,0};
+    Track* path = track;
+    while (Prec[path->Ville1] != -1 && Prec[path->Ville2]!= -1){
+        if (path->Claimed == UNCLAIMED){
+            targets[path->Couleur1-1] += path->Longueur;
+            if (path->Couleur2 != NONE && path->Couleur2 != LOCOMOTIVE){
+                targets[path->Couleur2-1] += path->Longueur;
+            }
+        }
+        Track* temp = Matrix[path->Ville2][Prec[path->Ville2]];
+        if (temp != path){
+            path = temp;
+        } else{
+            path = Matrix[path->Ville1][Prec[path->Ville1]];
+        }
     }
+
+    for (int i = 0; i<9;i++){
+        targets[i] -= Hand[i];
+    }
+
+    CardColor target = maxHand(targets);
+    if (target == LOCOMOTIVE){
+        return maxHand(Hand);
+    }
+    return target;
 }
 
 bool targetColorOnBoard(CardColor target){
@@ -210,7 +236,7 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
     return Code;
 }
 
-ResultCode claimNextRoute(MoveResult *Result,Track* nextTrack,int Hand[],int Prec[], Track*** Matrix){
+/*ResultCode claimNextRoute(MoveResult *Result,Track* nextTrack,int Hand[],int Prec[], Track*** Matrix){ //Deprecated function
     MoveData* Data = malloc(sizeof(MoveData));
     Track* claimTrack=Matrix[nextTrack->Ville2][Prec[nextTrack->Ville2]] ;
     int locomotives = 0;
@@ -230,12 +256,12 @@ ResultCode claimNextRoute(MoveResult *Result,Track* nextTrack,int Hand[],int Pre
 
     free(Data);
     return Code;
-}
+}*/
 
-Track* claimableTrackInPath(Track* nextTrack,int Hand[],int Prec[],Track*** Matrix){
+Track* claimableTrackInPath(Track* nextTrack,int Hand[],int Prec[],Track*** Matrix,int wagon){
     Track* claimTrack = nextTrack;
     int locomotives = 0;
-    CardColor color = claimableTrack(*claimTrack,Hand,&locomotives);
+    CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && claimTrack->Longueur == 0 && color == NONE ){
         Track* temp = Matrix[claimTrack->Ville2][Prec[claimTrack->Ville2]];
         if (temp != claimTrack){
@@ -243,7 +269,7 @@ Track* claimableTrackInPath(Track* nextTrack,int Hand[],int Prec[],Track*** Matr
         } else{
             claimTrack = Matrix[claimTrack->Ville1][Prec[claimTrack->Ville1]];
         }
-        color = claimableTrack(*claimTrack,Hand,&locomotives);
+        color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     }
 
     if (color != NONE){
@@ -258,6 +284,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
 //it will choose the objectives that always get the most points
     int cardDeck = 97;
     int objectiveDeck = 30;
+    int wagon = 45;
     Objective objectiveTab[2];
     int objectiveCount = 2;
     MoveResult* Result = malloc(sizeof(MoveResult));
@@ -269,14 +296,14 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
     Tour t = starter;
 
     //Dijsktra initialization
-    unsigned int D[nbCities]; //why tf does it need a +1
+    unsigned int D[nbCities];
     int Prec[nbCities];
     Dijkstra(objectiveTab[0].from, Matrix,nbCities,D,Prec);
-    Track* nextTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
+    Track* firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
 
     //Main Loop of play
     while (Result->state == NORMAL_MOVE && Code == ALL_GOOD){
-        printBoard();
+        //printBoard();
         if (t==ADVERSAIRE){
             Code = getMove(Data,Result);
             //free(Result->message);
@@ -309,7 +336,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
             t = JOUEUR;
         }else{
             int locomotives = 0;
-            CardColor targetColor = chooseColorTarget(Hand, nextTrack);
+            CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
 
             //Dijsktra and objectives update
             Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
@@ -323,26 +350,16 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                 objectiveCount -= 1;
                 if (objectiveCount!=0){
                     Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
-                    nextTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
-                }
-            }
-            while (objectiveCount != 0 && nextTrack->Longueur == 0){
-                unsigned int Ville = nextTrack->Ville2;
-                Track* nextTrack2 = Matrix[Ville][Prec[Ville]];
-                if ( nextTrack != nextTrack2){
-                    nextTrack = nextTrack2;
-                }else{
-                    Ville = nextTrack->Ville1;
-                    nextTrack = Matrix[Ville][Prec[Ville]];
+                    firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
                 }
             }
 
-            Track* claimTrack = claimableTrackInPath(nextTrack,Hand,Prec,Matrix); //A track on the path to the first objective that is claimable
+            Track* claimTrack = claimableTrackInPath(firstTrack,Hand,Prec,Matrix,wagon); //A track on the path to the first objective that is claimable
             //Play
             if (objectiveCount > 0){
                 if (claimTrack != NULL){
-                    CardColor color = claimableTrack(*claimTrack,Hand,&locomotives);
-                    Code = claimRouteBot(Result,color,locomotives,claimTrack,Hand);
+                    CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
+                    Code = claimRouteBot(Result,color,locomotives,claimTrack,Hand,&wagon);
                 }else{
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
                 }
@@ -363,7 +380,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     }
                     Code = sendMove(drawObjectiveMove,Result);
                     Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
-                    nextTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
+                    firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
                 }
                 free(drawObjectiveMove);
             }
