@@ -45,14 +45,14 @@ Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities, Track
 }
 
 
-void afficherMatrice(FILE* stream, Track*** matrice, int n){
+void printMatrix(FILE* stream, Track*** matrix, int n){
     for(int ligne = 0; ligne<n;ligne++){
         printf("%d : ",ligne);
         for(int colonne=0;colonne<n;colonne++){
-          if(matrice[ligne][colonne] == NULL){
+          if(matrix[ligne][colonne] == NULL){
           	fprintf(stream,"x ");
           }else{
-            fprintf(stream,"%p ",matrice[ligne][colonne]);
+            fprintf(stream,"%p ",matrix[ligne][colonne]);
           }
         }
         printf("\n");
@@ -251,12 +251,14 @@ int nbCardInHand(int Hand[]){
 
 unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
     //returns the max out of 3 numbers, useful for the choice function
-    if (a>b && a >c){
-        return a;
-    }else if (b>a && b >c){
-        return b;
+    unsigned int maxi = a;
+    if (b>maxi) {
+        maxi = b;
     }
-    return c;
+    if (c>maxi) {
+        maxi = c;
+    }
+    return maxi;
 }
 
 

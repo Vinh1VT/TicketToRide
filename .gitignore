@@ -3,4 +3,5 @@ tickettorideapi
 *.o
 objects
 projet
+stat
 .idea

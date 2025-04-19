@@ -6,7 +6,7 @@
 
 void parseTrack(Track* tableau,int* trackData, int nbTracks);
 Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities,Track* TrackZero);
-void afficherMatrice(FILE* stream, Track*** matrice, int n);
+void printMatrix(FILE* stream, Track*** matrix, int n);
 void freeMatrix(Track*** matrice, int n);
 void parseHand(int Hand[], CardColor starting[]);
 void addToHand(int Hand[], CardColor color);

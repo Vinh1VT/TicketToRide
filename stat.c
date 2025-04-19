@@ -9,6 +9,7 @@
 #include "structs.h"
 #include "tickettorideapi/ticketToRide.h"
 
+#define REPETITIONS 50
 
 int main(int const argc, char** argv){
 
@@ -22,7 +23,9 @@ int main(int const argc, char** argv){
                         .Longueur = 0,
                         .Claimed = NOT_CLAIMABLE};
 
-    for (int i = 0; i<10;i++){
+    for (int i = 0; i<REPETITIONS;i++){
+        /*FILE* f = fopen("objective.txt","w");
+        fclose(f);//empties the log objective file, for debug purposes*/
         connectToCGS("82.29.170.160",15001,argv[1]);
         sendGameSettings(Gsettings,&Gdata);
         parseHand(Hand,Gdata.cards);

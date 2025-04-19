@@ -15,30 +15,24 @@
 void firstTurnObjectiveChoice(bool choice[], Objective tab[]){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
     //always chooses the objectives with the most point
-    int scoreMax = max(tab[0].score,tab[1].score,tab[2].score);
-    for (int i =0; i<3;i++){
-        if (tab[i].score == scoreMax){
+    int arr[3] = {0,0,0};
+    int maxScore = max(tab[0].score, tab[1].score, tab[2].score);
+
+    for (int i = 0; i < 3; i++) {
+        if (tab[i].score == maxScore) {
             choice[i] = true;
-            break;
+        }else {
+            arr[i] = tab[i].score;
         }
     }
-     //a bit convoluted code, but it just chooses the second-highest score for the first turn when we must choose 2 objectives
-    int a = 0;
-    int b = 0;
-    for (int i = 0; i<3; i++){
-        if (!choice[i] && !a){
-            a = tab[i].score;
-        } else if (!choice[i]){
-            b = tab[i].score;
-        }
-    }
-    scoreMax = max(a,b,0);
-    for (int i = 0; i<3;i++){
-        if (tab[i].score == scoreMax && !choice[i]){
+
+    maxScore = max(arr[0], arr[1], arr[2]);
+    for (int i = 0; i < 3; i++) {
+        if (tab[i].score == maxScore && choice[i] == false) {
             choice[i] = true;
-            break;
         }
     }
+
 }
 
 ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]){
@@ -258,8 +252,8 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
     return Code;
 }*/
 
-Track* claimableTrackInPath(Track* nextTrack,int Hand[],int Prec[],Track*** Matrix,int wagon){
-    Track* claimTrack = nextTrack;
+Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Matrix,int wagon){
+    Track* claimTrack = firstTrack;
     int locomotives = 0;
     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && claimTrack->Longueur == 0 && color == NONE ){
@@ -336,11 +330,10 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
             t = JOUEUR;
         }else{
             int locomotives = 0;
-            CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
 
             //Dijsktra and objectives update
             Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
-            if (D[objectiveTab[0].to] == 0){
+            if (D[objectiveTab[0].to] == 0 || D[objectiveTab[0].to] == INT_MAX){ //Switch objectives if it is completed or impossible
                 if (objectiveCount == 2){
                     objectiveTab[0] = objectiveTab[1]; //Shift left of objectives, I hope this won't segfault or anything
                     objectiveTab[1].from = 0;
@@ -348,10 +341,9 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     objectiveTab[1].score = 0;
                 }
                 objectiveCount -= 1;
-                if (objectiveCount!=0){
-                    Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
-                    firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
-                }
+                Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
+                firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
+
             }
 
             Track* claimTrack = claimableTrackInPath(firstTrack,Hand,Prec,Matrix,wagon); //A track on the path to the first objective that is claimable
@@ -361,6 +353,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
                     Code = claimRouteBot(Result,color,locomotives,claimTrack,Hand,&wagon);
                 }else{
+                    CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
                 }
             }else{

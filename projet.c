@@ -16,8 +16,8 @@ int main(int const argc, char** argv){
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
-    /*FILE* f = fopen("objective","w");
-    fclose(f);//empties the log objective file, for debug purposes*/
+    FILE* f = fopen("objective.txt","w");
+    fclose(f);//empties the log objective file, for debug purposes
     int Hand[9];
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
