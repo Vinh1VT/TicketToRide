@@ -28,13 +28,14 @@ void firstTurnObjectiveChoice(bool choice[], Objective tab[]){
         }
     }
 
+    found = false;
     maxScore = max(arr[0], arr[1], arr[2]);
     for (int i = 0; i < 3; i++) {
-        if (tab[i].score == maxScore && choice[i] == false) {
+        if (arr[i] == maxScore && found == false) {
             choice[i] = true;
+            found = true;
         }
     }
-
 }
 
 ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]){
@@ -44,7 +45,7 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     ResultCode Code;
     bool choice[3] = {false,false,false};
     if (t == ADVERSAIRE){
-        //Gets the opponent first move (Drawing objectives)
+        //Gets the opponent's first move (Drawing objectives)
         Code = getMove(Data, Result);
         if (Code!=ALL_GOOD){
             return Code;
@@ -335,12 +336,23 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     objectiveTab[1].score = 0;
                 }
                 objectiveCount -= 1;
-                Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
-                firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
-
+                if (objectiveCount>0) {
+                    Dijkstra(objectiveTab[0].from,Matrix,nbCities,D,Prec);
+                    firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
+                }else {
+                    firstTrack = NULL;
+                }
             }
 
-            Track* claimTrack = claimableTrackInPath(firstTrack,Hand,Prec,Matrix,wagon); //A track on the path to the first objective that is claimable
+
+            Track* claimTrack;
+            if (firstTrack != NULL) {
+                claimTrack = claimableTrackInPath(firstTrack,Hand,Prec,Matrix,wagon); //A track on the path to the first objective that is claimable
+            }else {
+                claimTrack = NULL;
+            }
+
+
             //Play
             if (objectiveCount > 0){
                 if (claimTrack != NULL){
