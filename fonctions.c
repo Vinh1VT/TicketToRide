@@ -241,7 +241,7 @@ CardColor maxHand(int Hand[]){
     return max;
 }
 
-int nbCardInHand(int Hand[]){
+int totalCardsInHand(int Hand[]){
     int total = 0;
     for (int i  = 0; i<9;i++){
         total += Hand[i];

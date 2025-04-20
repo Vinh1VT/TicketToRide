@@ -17,10 +17,12 @@ void firstTurnObjectiveChoice(bool choice[], Objective tab[]){
     //always chooses the objectives with the most point
     int arr[3] = {0,0,0};
     int maxScore = max(tab[0].score, tab[1].score, tab[2].score);
+    bool found = false;
 
     for (int i = 0; i < 3; i++) {
-        if (tab[i].score == maxScore) {
+        if (tab[i].score == maxScore && !found) {
             choice[i] = true;
+            found = true;
         }else {
             arr[i] = tab[i].score;
         }
@@ -44,12 +46,10 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
     if (t == ADVERSAIRE){
         //Gets the opponent first move (Drawing objectives)
         Code = getMove(Data, Result);
-        //freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
-        //freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
@@ -65,7 +65,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         if (Code != ALL_GOOD){
             return Code;
         }
-        freeMessage(Result);
         firstTurnObjectiveChoice(choice,Result->objectives);
         *objectiveDeck -= 2;
         int p = 0;
@@ -79,7 +78,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
             Data -> chooseObjectives[i] = choice[i];
         }
         Code = sendMove(Data,Result);
-        freeMessage(Result);
     }else{
         //Plays our move
         Data->action = DRAW_OBJECTIVES;
@@ -87,7 +85,6 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         if (Code != ALL_GOOD){
             return Code;
         }
-        freeMessage(Result);
         firstTurnObjectiveChoice(choice,Result->objectives);
         *objectiveDeck -= 2;
         int p = 0;
@@ -104,16 +101,13 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]
         if (Code!=ALL_GOOD){
             return Code;
         }
-        freeMessage(Result);
 
         //Gets the opponent first move (Drawing objectives)
         Code = getMove(Data, Result);
-        freeMessage(Result);
         if (Code!=ALL_GOOD){
             return Code;
         }
         Code = getMove(Data,Result);
-        freeMessage(Result);
 
         for (int i = 0; i<3;i++){
             if (Data->chooseObjectives[i]){
@@ -352,7 +346,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                 if (claimTrack != NULL){
                     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
                     Code = claimRouteBot(Result,color,locomotives,claimTrack,Hand,&wagon);
-                }else{
+                }else {
                     CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
                 }

@@ -22,7 +22,7 @@ void removeObjective(Objective tab[], Objective o, int objectiveCount);
 void sortObjective(Objective tab[],int objectiveCount);
 CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon);
 CardColor maxHand(int Hand[]);
-int nbCardInHand(int Hand[]);
+int totalCardsInHand(int Hand[]);
 unsigned int max(unsigned int a,  unsigned int b, unsigned int c);
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck);
 void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix);
