@@ -278,12 +278,12 @@ void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int
     }
 
     unsigned int maxScore = max(arr[0],arr[1],arr[2]);
-
     for (int i = 0;i<3;i++){
         if (newObjectives[i].score == maxScore){
             choice[i] = 1;
             *objectiveDeck -= 1;
             *objectiveCount += 1;
+            break;
         }
     }
 
