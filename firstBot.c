@@ -276,6 +276,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
     int wagon = 45;
     Objective objectiveTab[2];
     int objectiveCount = 2;
+    Track* centralTracks[10] = {Matrix[13][14],Matrix[2][1],Matrix[11][17],Matrix[9][18],Matrix[10][20],Matrix[10][19],Matrix[22][27],Matrix[23][22],Matrix[11][9],Matrix[9][19]}; //Hardcoded but maybe i'll do something better next time lmao
     MoveResult* Result = malloc(sizeof(MoveResult));
     MoveData* Data = malloc(sizeof(MoveData));
     Result -> state = NORMAL_MOVE;
@@ -358,9 +359,17 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                 if (claimTrack != NULL){
                     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
                     Code = claimRouteBot(Result,color,locomotives,claimTrack,Hand,&wagon);
-                }else {
+                }else if (totalCardsInHand(Hand)<48){
                     CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
+                }else{
+                    for (int i =0; i<10;i++){
+                        CardColor color = claimableTrack(*centralTracks[i],Hand,&locomotives,wagon);
+                        if (color != NONE){
+                            Code = claimRouteBot(Result,color,locomotives,centralTracks[i],Hand,&wagon);
+                            break;
+                        }
+                    }
                 }
             }else{
                 int choice[3]= {0,0,0};
