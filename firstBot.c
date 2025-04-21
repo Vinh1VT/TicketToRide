@@ -211,13 +211,33 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
                 return Code;
             }
             addToHand(Hand,target);
-        }else{
+        }else if (*cardDeck>1){
             Data -> action = DRAW_BLIND_CARD;
             Code = sendMove(Data,Result);
             if (Code != ALL_GOOD){
                 return Code;
             }
             addToHand(Hand,Result->card);
+        }else{
+            BoardState state;
+            Code = getBoardState(&state);
+            if (Code != ALL_GOOD){
+                return Code;
+            }
+            Data->action = DRAW_CARD;
+            CardColor color;
+            for (int i = 0; i<5;i++){
+                if (state.card[i] != LOCOMOTIVE){
+                    color = state.card[i];
+                    break;
+                }
+            }
+            Data->drawCard = color;
+            Code = sendMove(Data,Result);
+            if (Code!=ALL_GOOD){
+                return Code;
+            }
+            addToHand(Hand,color);
         }
     }
     *cardDeck -= 2;
