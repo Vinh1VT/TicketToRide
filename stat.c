@@ -9,7 +9,7 @@
 #include "structs.h"
 #include "tickettorideapi/ticketToRide.h"
 
-#define REPETITIONS 50
+#define REPETITIONS 20
 
 int main(int const argc, char** argv){
 

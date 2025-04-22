@@ -26,4 +26,5 @@ int totalCardsInHand(int Hand[]);
 unsigned int max(unsigned int a,  unsigned int b, unsigned int c);
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck);
 void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix);
+unsigned int min(unsigned int a, unsigned int b, unsigned int c);
 #endif //FONCTIONS_H

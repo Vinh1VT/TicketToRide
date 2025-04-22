@@ -15,12 +15,12 @@
 void firstTurnObjectiveChoice(bool choice[], Objective tab[]){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
     //always chooses the objectives with the most point
-    int arr[3] = {0,0,0};
-    int maxScore = max(tab[0].score, tab[1].score, tab[2].score);
+    int arr[3] = {INT_MAX,INT_MAX,INT_MAX};
+    unsigned int minScore = min(tab[0].score, tab[1].score, tab[2].score);
     bool found = false;
 
     for (int i = 0; i < 3; i++) {
-        if (tab[i].score == maxScore && !found) {
+        if (tab[i].score == minScore && !found) {
             choice[i] = true;
             found = true;
         }else {
@@ -29,9 +29,9 @@ void firstTurnObjectiveChoice(bool choice[], Objective tab[]){
     }
 
     found = false;
-    maxScore = max(arr[0], arr[1], arr[2]);
+    minScore = min(arr[0], arr[1], arr[2]);
     for (int i = 0; i < 3; i++) {
-        if (arr[i] == maxScore && found == false) {
+        if (arr[i] == minScore && found == false) {
             choice[i] = true;
             found = true;
         }

@@ -261,9 +261,21 @@ unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
     return maxi;
 }
 
+unsigned int min(unsigned int a, unsigned int b, unsigned int c){
+
+    unsigned int mini = a;
+    if (b< mini ){
+        mini = b;
+    }
+    if (c < mini){
+        mini = c;
+    }
+    return mini;
+}
+
 
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
-    unsigned int arr[3] = {0,0,0};
+    unsigned int arr[3] = {INT_MAX,INT_MAX,INT_MAX};
 
     for (int i =0 ; i <3 ;i++){
         unsigned int D[nbCities];
@@ -277,9 +289,9 @@ void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int
         }
     }
 
-    unsigned int maxScore = max(arr[0],arr[1],arr[2]);
+    unsigned int minScore = min(arr[0],arr[1],arr[2]);
     for (int i = 0;i<3;i++){
-        if (newObjectives[i].score == maxScore){
+        if (newObjectives[i].score == minScore){
             choice[i] = 1;
             *objectiveDeck -= 1;
             *objectiveCount += 1;
