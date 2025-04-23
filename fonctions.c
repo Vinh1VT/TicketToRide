@@ -301,3 +301,11 @@ void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matr
 }
 
 
+unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
+    unsigned int D[nbCities];
+    int Prec[nbCities];
+
+    Dijkstra(obj.from,Matrix,nbCities,D,Prec);
+
+    return D[obj.to];
+}
