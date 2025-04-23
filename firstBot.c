@@ -39,7 +39,7 @@ void firstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, i
     }
 }
 
-ResultCode firstTurnBot(int starter, int* objectiveDeck,Objective objectiveTab[]){
+ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[], Track*** Matrix, int nbCities){
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
     MoveData* Data = malloc(sizeof(MoveData));
@@ -301,7 +301,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
     MoveResult* Result = malloc(sizeof(MoveResult));
     MoveData* Data = malloc(sizeof(MoveData));
     Result -> state = NORMAL_MOVE;
-    ResultCode Code= firstTurnBot(starter,&objectiveDeck,objectiveTab);
+    ResultCode Code= firstTurnBot(starter,&objectiveDeck,objectiveTab, Matrix, nbCities);
     //so the first objective of the list is the one with the biggest score (might already be true though)
     sortObjective(objectiveTab,objectiveCount);
     Tour t = starter;
