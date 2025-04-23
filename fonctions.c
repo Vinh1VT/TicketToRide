@@ -261,15 +261,21 @@ unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
     return maxi;
 }
 
+unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
+    unsigned int D[nbCities];
+    int Prec[nbCities];
+
+    Dijkstra(obj.from,Matrix,nbCities,D,Prec);
+
+    return D[obj.to];
+}
+
 
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
     unsigned int arr[3] = {0,0,0};
-
+    unsigned int distanceTab[3] = {distance(newObjectives[0],Matrix,nbCities),distance(newObjectives[1],Matrix,nbCities),distance(newObjectives[2],Matrix,nbCities)};
     for (int i =0 ; i <3 ;i++){
-        unsigned int D[nbCities];
-        int Prec[nbCities];
-        Dijkstra(newObjectives[i].from,Matrix,nbCities,D,Prec);
-        if (D[newObjectives[i].to]==0){
+        if (distanceTab==0){
             choice[i] = 2;
             *objectiveDeck -=1;
         }else{
@@ -277,9 +283,39 @@ void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int
         }
     }
 
-    unsigned int maxScore = max(arr[0],arr[1],arr[2]);
+    unsigned int maxDistance = max(arr[0],arr[1],arr[2]);
+    while (maxDistance == INT_MAX){
+        for (int i = 0; i <3 ;i++){
+            if (arr[i] == INT_MAX){
+                arr[i] = 0;
+            }
+        }
+        maxDistance = max(arr[0],arr[1],arr[2]);
+    }
+    //if no objectives are reachable
+    bool noValidObj = false;
+    for (int i = 0; i<3;i++){
+        if (arr[i] != 0){
+            break;
+        }else if (i == 2){
+            noValidObj = true;
+        }
+    }
+    if (noValidObj){
+        for (int i = 0; i<3;i++){
+            if (choice[i] != 0){
+                return; //at least 1 objective has been chosen
+            }
+        }
+
+        choice[0] = 1; //default choice if there is nothing reachable (might be better to just choose the min score)
+        *objectiveDeck -= 1;
+        *objectiveCount += 1;
+        return;
+    }
+
     for (int i = 0;i<3;i++){
-        if (newObjectives[i].score == maxScore){
+        if (arr[i] == maxDistance){
             choice[i] = 1;
             *objectiveDeck -= 1;
             *objectiveCount += 1;
@@ -300,12 +336,3 @@ void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matr
     }
 }
 
-
-unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
-    unsigned int D[nbCities];
-    int Prec[nbCities];
-
-    Dijkstra(obj.from,Matrix,nbCities,D,Prec);
-
-    return D[obj.to];
-}
