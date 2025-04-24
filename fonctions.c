@@ -249,7 +249,7 @@ int totalCardsInHand(int Hand[]){
     return total;
 }
 
-unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
+unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c){
     //returns the max out of 3 numbers, useful for the choice function
     unsigned int maxi = a;
     if (b>maxi) {
@@ -261,6 +261,18 @@ unsigned int max(unsigned int a,  unsigned int b, unsigned int c){
     return maxi;
 }
 
+float floatMax(float a, float b, float c){
+    float maxi = a;
+    if (b>maxi) {
+        maxi = b;
+    }
+    if (c>maxi) {
+        maxi = c;
+    }
+    return maxi;
+}
+
+
 unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
     unsigned int D[nbCities];
     int Prec[nbCities];
@@ -270,55 +282,53 @@ unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
     return D[obj.to];
 }
 
+unsigned int minIndex(unsigned int a, unsigned int b, unsigned int  c){
+    unsigned int mini = a;
+    if (mini>b){
+        mini = b;
+    }
+    if (mini > c){
+        mini = c;
+    }
+
+    if (mini == a ){
+        return 0;
+    }else if (mini == b){
+        return 1;
+    }
+    return 2;
+}
+
 
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
-    unsigned int arr[3] = {0,0,0};
-    unsigned int distanceTab[3] = {distance(newObjectives[0],Matrix,nbCities),distance(newObjectives[1],Matrix,nbCities),distance(newObjectives[2],Matrix,nbCities)};
-    for (int i =0 ; i <3 ;i++){
-        if (distanceTab==0){
+    float rateTab[3] = {objectiveRate(newObjectives[0],Matrix,nbCities),objectiveRate(newObjectives[1],Matrix,nbCities),objectiveRate(newObjectives[2],Matrix,nbCities)};
+    bool chosen = false;
+    for (int i =0;i<3;i++){
+        if (rateTab[i] == INT_MAX){
             choice[i] = 2;
             *objectiveDeck -=1;
+            chosen = true;
+            rateTab[i] = -1;
+        }
+    }
+
+    float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
+    if (maxRate==0){
+        if (chosen){
+            return;
         }else{
-            arr[i] = newObjectives[i].score;
+            choice[0] = 1; //if we must choose an objective, chooses the first one (to be upgraded)
+            *objectiveDeck-=1;
+            *objectiveCount+=1;
+            return;
         }
     }
 
-    unsigned int maxDistance = max(arr[0],arr[1],arr[2]);
-    while (maxDistance == INT_MAX){
-        for (int i = 0; i <3 ;i++){
-            if (arr[i] == INT_MAX){
-                arr[i] = 0;
-            }
-        }
-        maxDistance = max(arr[0],arr[1],arr[2]);
-    }
-    //if no objectives are reachable
-    bool noValidObj = false;
     for (int i = 0; i<3;i++){
-        if (arr[i] != 0){
-            break;
-        }else if (i == 2){
-            noValidObj = true;
-        }
-    }
-    if (noValidObj){
-        for (int i = 0; i<3;i++){
-            if (choice[i] != 0){
-                return; //at least 1 objective has been chosen
-            }
-        }
-
-        choice[0] = 1; //default choice if there is nothing reachable (might be better to just choose the min score)
-        *objectiveDeck -= 1;
-        *objectiveCount += 1;
-        return;
-    }
-
-    for (int i = 0;i<3;i++){
-        if (arr[i] == maxDistance){
+        if (rateTab[i] == maxRate ){
             choice[i] = 1;
-            *objectiveDeck -= 1;
-            *objectiveCount += 1;
+            *objectiveDeck-=1;
+            *objectiveCount+=1;
             break;
         }
     }
@@ -336,3 +346,13 @@ void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matr
     }
 }
 
+float objectiveRate(Objective objective,Track*** Matrix,int nbCities){
+    unsigned int objDistance = distance(objective,Matrix,nbCities);
+    if (objDistance == INT_MAX){
+        return 0;
+    }else if (objDistance == 0){
+        return INT_MAX;
+    }
+
+    return (float)objective.score / (float)objDistance;
+}

@@ -15,26 +15,23 @@
 void firstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
     //always chooses the objectives with the most point
-    unsigned int arr[3] = {0,0,0};
-    unsigned int distanceTab[3] = {distance(tab[0],Matrix,nbCities),distance(tab[1],Matrix,nbCities) , distance(tab[2],Matrix,nbCities)};
-    unsigned int maxDistance = max(distanceTab[0],distanceTab[1],distanceTab[2]);
-    bool found = false;
-    //No protection against objective that are not possible because it's the first turn
-    for (int i = 0; i < 3; i++){
-        if (distanceTab[i] == maxDistance && !found) {
+    float rateTab[3] = {objectiveRate(tab[0],Matrix,nbCities),objectiveRate(tab[1],Matrix,nbCities),objectiveRate(tab[2],Matrix,nbCities)};
+    float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
+    for (int i = 0; i<3;i++){
+        if (rateTab[i] == maxRate){
             choice[i] = true;
-            found = true;
-        }else {
-            arr[i] = distanceTab[i] ;
+            rateTab[i] = 0;
+            break;
         }
     }
 
-    found = false;
-    maxDistance = max(arr[0], arr[1], arr[2]);
-    for (int i = 0; i < 3; i++) {
-        if (arr[i] == maxDistance && found == false) {
+    maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
+
+    for (int i = 0; i<3;i++){
+        if (rateTab[i] == maxRate){
             choice[i] = true;
-            found = true;
+            rateTab[i] = 0;
+            break;
         }
     }
 }

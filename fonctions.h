@@ -23,8 +23,10 @@ void sortObjective(Objective tab[],int objectiveCount);
 CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon);
 CardColor maxHand(int Hand[]);
 int totalCardsInHand(int Hand[]);
-unsigned int max(unsigned int a,  unsigned int b, unsigned int c);
+unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c);
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck);
 void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix);
 unsigned int distance(Objective obj,Track*** Matrix,int nbCities);
+float objectiveRate(Objective objective,Track*** Matrix,int nbCities);
+float floatMax(float a, float b, float c);
 #endif //FONCTIONS_H
