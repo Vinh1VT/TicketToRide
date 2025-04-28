@@ -2,8 +2,8 @@
 
 N_PROCESS=10
 PROJET="./stat"
-NOM="TGVinhStatRate"
-DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/Rate
+NOM="TGVinhStatV21"
+DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/V21/
 
 mkdir -p "$DIR"
 
@@ -26,7 +26,9 @@ done
 wait
 
 # Analyse des logs
-grep "^Total score:" "$DIR"/$NOM* > lignes.txt
+cd "$DIR" || exit
+
+grep "^Total score:" $NOM* > lignes.txt
 awk 'NR % 2 == 1' lignes.txt > total.txt
 
 echo "Fini!"

@@ -3,6 +3,7 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "firstBot.h"
 #include "fonctions.h"
@@ -23,9 +24,11 @@ int main(int const argc, char** argv){
                         .Longueur = 0,
                         .Claimed = NOT_CLAIMABLE};
 
+    FILE* tour = fopen("tour","w");
     for (int i = 0; i<REPETITIONS;i++){
         /*FILE* f = fopen("objective.txt","w");
         fclose(f);//empties the log objective file, for debug purposes*/
+        sleep(1);
         connectToCGS("82.29.170.160",15001,argv[1]);
         sendGameSettings(Gsettings,&Gdata);
         parseHand(Hand,Gdata.cards);
@@ -37,6 +40,8 @@ int main(int const argc, char** argv){
         free(Gdata.gameName);
         free(Gdata.trackData);
         freeMatrix(Matrice, Gdata.nbCities);
+        fprintf(tour,"%d\n",i+1);
     }
+    fclose(tour);
     return EXIT_SUCCESS;
 }

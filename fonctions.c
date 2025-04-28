@@ -250,7 +250,7 @@ int totalCardsInHand(int Hand[]){
 }
 
 unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c){
-    //returns the max out of 3 numbers, useful for the choice function
+    //returns the max-out-of-3 numbers, useful for the choice function
     unsigned int maxi = a;
     if (b>maxi) {
         maxi = b;
@@ -301,38 +301,31 @@ unsigned int minIndex(unsigned int a, unsigned int b, unsigned int  c){
 
 
 void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
-    float rateTab[3] = {objectiveRate(newObjectives[0],Matrix,nbCities),objectiveRate(newObjectives[1],Matrix,nbCities),objectiveRate(newObjectives[2],Matrix,nbCities)};
     bool chosen = false;
-    for (int i =0;i<3;i++){
-        if (rateTab[i] == INT_MAX){
+    unsigned int distanceTab[3] = {distance(newObjectives[0],Matrix,nbCities),distance(newObjectives[1],Matrix,nbCities),distance(newObjectives[2],Matrix,nbCities)};
+
+
+    for (int i=0;i<3;i++){
+        if (distanceTab[i]==0){
             choice[i] = 2;
-            *objectiveDeck -=1;
             chosen = true;
-            rateTab[i] = -1;
+            *objectiveDeck -= 1;
         }
     }
 
-    float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
-    if (maxRate==0){
-        if (chosen){
-            return;
-        }else{
-            choice[0] = 1; //if we must choose an objective, chooses the first one (to be upgraded)
-            *objectiveDeck-=1;
-            *objectiveCount+=1;
-            return;
-        }
-    }
+    if (!chosen){
+        unsigned int index = minIndex(distanceTab[0],distanceTab[1],distanceTab[2]);
 
-    for (int i = 0; i<3;i++){
-        if (rateTab[i] == maxRate ){
-            choice[i] = 1;
-            *objectiveDeck-=1;
-            *objectiveCount+=1;
-            break;
+        for (int i = 0; i < 3;i++){
+            if (i==index){
+                choice[i] = 1;
+                *objectiveCount += 1;
+                *objectiveDeck -= 1;
+                break;
+            }
         }
-    }
 
+    }
 }
 
 void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix){ //This function was implemented strictly for debug,
@@ -355,4 +348,27 @@ float objectiveRate(Objective objective,Track*** Matrix,int nbCities){
     }
 
     return (float)objective.score / (float)objDistance;
+}
+
+float centrality(unsigned int city, int nbCities){
+    return (float) city/ ((float)nbCities/2);
+}
+
+
+float objectiveCentrality(Objective objective, Track*** Matrix, int nbCities){
+    unsigned int D[nbCities];
+    int Prec[nbCities];
+    float somme = 0;
+    float nb = 0;
+
+    Dijkstra(objective.from,Matrix,nbCities,D,Prec);
+
+    int parcours = (int)objective.from;
+    while (parcours != -1){
+        somme += centrality(parcours,nbCities);
+        nb = nb+1;
+        parcours = Prec[parcours];
+    }
+
+    return somme/nb;
 }

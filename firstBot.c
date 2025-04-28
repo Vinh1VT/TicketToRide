@@ -15,26 +15,30 @@
 void firstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
     //always chooses the objectives with the most point
-    float rateTab[3] = {objectiveRate(tab[0],Matrix,nbCities),objectiveRate(tab[1],Matrix,nbCities),objectiveRate(tab[2],Matrix,nbCities)};
-    float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
+    float centralTab[3];
     for (int i = 0; i<3;i++){
-        if (rateTab[i] == maxRate){
+        centralTab[i] = objectiveCentrality(tab[i],Matrix,nbCities);
+    }
+    float maxCentrality = floatMax(centralTab[0],centralTab[1],centralTab[2]);
+
+    for (int i =0;i<3;i++){
+        if (centralTab[i] == maxCentrality){
             choice[i] = true;
-            rateTab[i] = 0;
+            centralTab[i] = 0;
             break;
         }
     }
+    maxCentrality = floatMax(centralTab[0],centralTab[1],centralTab[2]);
 
-    maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
-
-    for (int i = 0; i<3;i++){
-        if (rateTab[i] == maxRate){
+    for (int i =0;i<3;i++){
+        if (centralTab[i] == maxCentrality && !choice[i]){
             choice[i] = true;
-            rateTab[i] = 0;
-            break;
+            return;
         }
     }
+
 }
+
 
 ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[], Track*** Matrix, int nbCities){
     Tour t = starter;
@@ -209,7 +213,7 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
                 return Code;
             }
             addToHand(Hand,target);
-        }else if (*cardDeck>1){
+        }else if (*cardDeck>4){
             Data -> action = DRAW_BLIND_CARD;
             Code = sendMove(Data,Result);
             if (Code != ALL_GOOD){

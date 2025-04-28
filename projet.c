@@ -11,7 +11,7 @@
 int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
-    DEBUG_LEVEL = INTERN_DEBUG;
+    DEBUG_LEVEL = MESSAGE;
     char* Gsettings = "TRAINING NICE_BOT map=USA";
     GameData Gdata;
     //Gsettings.gameType = TRAINING;

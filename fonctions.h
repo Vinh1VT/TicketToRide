@@ -29,4 +29,5 @@ void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matr
 unsigned int distance(Objective obj,Track*** Matrix,int nbCities);
 float objectiveRate(Objective objective,Track*** Matrix,int nbCities);
 float floatMax(float a, float b, float c);
+float objectiveCentrality(Objective objective, Track*** Matrix, int nbCities);
 #endif //FONCTIONS_H
