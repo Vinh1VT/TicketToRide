@@ -12,12 +12,10 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TRAINING NICE_BOT map=USA";
+    char* Gsettings = "TRAINING NICE_BOT seed=110836";
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
-    FILE* f = fopen("objective.txt","w");
-    fclose(f);//empties the log objective file, for debug purposes
     int Hand[9];
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,

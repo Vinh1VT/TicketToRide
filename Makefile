@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -g
 OBJ_DIR = ./objects
 
-SRCS_CMN = tickettorideapi/clientAPI.c tickettorideapi/ticketToRide.c fonctions.c manualPlayer.c randomBot.c firstBot.c
+SRCS_CMN = tickettorideapi/clientAPI.c tickettorideapi/ticketToRide.c fonctions.c randomBot.c firstBot.c
 SRCS_MAIN = projet.c
 SRCS_STAT = stat.c
 

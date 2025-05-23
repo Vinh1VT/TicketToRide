@@ -4,7 +4,6 @@
 #include "fonctions.h"
 
 #include <limits.h>
-#include <bits/local_lim.h>
 
 void parseTrack(Track* tableau,int* trackData, int nbTracks){
     int* p = trackData;

@@ -3,6 +3,9 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "firstBot.h"
 #include "fonctions.h"
@@ -15,17 +18,27 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TRAINING NICE_BOT map=USA";
+    srand(time(NULL)^getpid());
+
     GameData Gdata;
     int Hand[9];
+
     Track TrackZero = {.Ville1 = 0,
                         .Ville2 = 0,
                         .Longueur = 0,
                         .Claimed = NOT_CLAIMABLE};
 
     for (int i = 0; i<REPETITIONS;i++){
-        /*FILE* f = fopen("objective.txt","w");
-        fclose(f);//empties the log objective file, for debug purposes*/
+        char Gsettings[100];
+        int n = rand() % 1000000;
+        sprintf(Gsettings,"TRAINING NICE_BOT seed=%d start=0",n);
+
+        char fileName[100] = "LogSeedCrash/";
+        strcat(fileName,argv[1]);
+        FILE* f = fopen(fileName,"w");
+        fprintf(f,"Seed : %d Round : %d\n",n,i);
+        fclose(f);
+
         connectToCGS("82.29.170.160",15001,argv[1]);
         sendGameSettings(Gsettings,&Gdata);
         parseHand(Hand,Gdata.cards);

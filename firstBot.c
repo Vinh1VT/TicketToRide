@@ -14,7 +14,7 @@
 
 void firstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
     //if it's the first turn, claims 2 objectives, claims only one otherwise
-    //always chooses the objectives with the most point
+    //always chooses the objectives with the better score/distance ratio
     float rateTab[3] = {objectiveRate(tab[0],Matrix,nbCities),objectiveRate(tab[1],Matrix,nbCities),objectiveRate(tab[2],Matrix,nbCities)};
     float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
     for (int i = 0; i<3;i++){
@@ -265,6 +265,7 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
     return Code;
 }*/
 
+
 Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Matrix,int wagon){
     Track* claimTrack = firstTrack;
     int locomotives = 0;
@@ -285,6 +286,43 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
     return NULL;
 }
 
+ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, int Hand[],CardColor colorTarget, int* wagon){
+    //Claim the longest path available connected to our network, that is not of our target color
+    Track maxLong;
+    maxLong.Longueur = 0;
+    for (int i = 0; i<nbCities;i++){
+        for (int j = 0 ; j < i; j++){
+            if (Matrix[i][j]!= NULL &&  Matrix[i][j]->Claimed == PLAYER){
+                for (int k = 0; k < i;k++){
+                    if (Matrix[i][k] != NULL && Matrix[i][k]->Claimed == UNCLAIMED && Matrix[i][k]->Longueur > maxLong.Longueur){
+                        int locomotivesClaimDefault;
+                        CardColor claimColor = claimableTrack(*Matrix[i][k],Hand,&locomotivesClaimDefault,*wagon);
+                        if (claimColor != colorTarget){
+                            maxLong = *Matrix[i][k];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (maxLong.Longueur != 0){
+        int locomotivesToActuallyClaim;
+        CardColor claimColor = claimableTrack(maxLong,Hand,&locomotivesToActuallyClaim,*wagon);
+        return claimRouteBot(Result,claimColor,locomotivesToActuallyClaim,&maxLong,Hand,wagon);
+    }else{
+        //Claims any road that is claimable (extremely rare case but oh well it does happen in some seeds)
+        for (int i = 0; i<nbCities;i++){
+            for (int j = 0; j<nbCities;j++){
+                if (Matrix[i][j] != NULL && Matrix[i][j]->Claimed == UNCLAIMED){
+                    int locomotivesToClaimDefault;
+                    CardColor claimColor = claimableTrack(*Matrix[i][j],Hand,&locomotivesToClaimDefault,*wagon);
+                    return claimRouteBot(Result,claimColor,locomotivesToClaimDefault,Matrix[i][j],Hand,wagon);
+                }
+            }
+        }
+    }
+}
+
 
 void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
 //This bot will try to do the shortest path to his objectives, without any priority on which track to claim
@@ -294,7 +332,6 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
     int wagon = 45;
     Objective objectiveTab[2];
     int objectiveCount = 2;
-    Track* centralTracks[10] = {Matrix[13][14],Matrix[2][1],Matrix[11][17],Matrix[9][18],Matrix[10][20],Matrix[10][19],Matrix[22][27],Matrix[23][22],Matrix[11][9],Matrix[9][19]}; //Hardcoded but maybe i'll do something better next time lmao
     MoveResult* Result = malloc(sizeof(MoveResult));
     MoveData* Data = malloc(sizeof(MoveData));
     Result -> state = NORMAL_MOVE;
@@ -381,13 +418,8 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
                 }else{
-                    for (int i =0; i<10;i++){
-                        CardColor color = claimableTrack(*centralTracks[i],Hand,&locomotives,wagon);
-                        if (color != NONE){
-                            Code = claimRouteBot(Result,color,locomotives,centralTracks[i],Hand,&wagon);
-                            break;
-                        }
-                    }
+                    CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
+                    Code = claimDefaultTrack(Result,nbCities,Matrix,Hand,targetColor,&wagon);
                 }
             }else{
                 int choice[3]= {0,0,0};
