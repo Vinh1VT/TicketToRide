@@ -2,8 +2,8 @@
 
 N_PROCESS=10
 PROJET="./stat"
-NOM="TGVinhStatVDebug"
-DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/DebugCrash
+NOM="TGVinhStatV7"
+DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/V7
 
 mkdir -p "$DIR"
 

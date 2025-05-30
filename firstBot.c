@@ -131,9 +131,9 @@ ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Trac
         .nbLocomotives = locomotives
     };
     Data->claimRoute = claim;
-    *wagon -= track->Longueur;
+    *wagon -= (int)track->Longueur;
     Hand[8] -= locomotives;
-    Hand[color-1] -= track->Longueur - locomotives;
+    Hand[color-1] -= (int)track->Longueur - locomotives;
     ResultCode Code = sendMove(Data, Result);
     track->Claimed = PLAYER;
     track->Longueur = 0;
@@ -224,8 +224,8 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
             }
             Data->action = DRAW_CARD;
             CardColor color;
-            for (int i = 0; i<5;i++){
-                if (state.card[i] != LOCOMOTIVE){
+            for (int j = 0; i<5;i++){
+                if (state.card[j] != LOCOMOTIVE){
                     color = state.card[i];
                     break;
                 }
@@ -321,6 +321,7 @@ ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, 
             }
         }
     }
+    return LOSING_MOVE;
 }
 
 

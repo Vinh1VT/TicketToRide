@@ -3,7 +3,6 @@
 
 #include "firstBot.h"
 #include "fonctions.h"
-#include "manualPlayer.h"
 #include "randomBot.h"
 #include "structs.h"
 #include "tickettorideapi/ticketToRide.h"
@@ -12,7 +11,7 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TRAINING NICE_BOT seed=110836";
+    char* Gsettings = "TOURNAMENT Test";
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
@@ -21,25 +20,25 @@ int main(int const argc, char** argv){
                         .Ville2 = 0,
                         .Longueur = 0,
                         .Claimed = NOT_CLAIMABLE};
+        connectToCGS("82.29.170.160",15001,argv[1]);
 
-    connectToCGS("82.29.170.160",15001,argv[1]);
+        sendGameSettings(Gsettings,&Gdata);
+        //printBoard();
+        parseHand(Hand,Gdata.cards);
+        Track tableauTrack[Gdata.nbTracks];
+        parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
+        Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
+        //afficherMatrice(Matrice,Gdata.nbCities);
+        //manualPlay(Gdata.starter);
 
-    sendGameSettings(Gsettings,&Gdata);
-    //printBoard();
-    parseHand(Hand,Gdata.cards);
-    Track tableauTrack[Gdata.nbTracks];
-    parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
-    Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
-    //afficherMatrice(Matrice,Gdata.nbCities);
-    //manualPlay(Gdata.starter);
+        //randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
 
-    //randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
+        firstBotPlay(Gdata.starter,Hand, Matrice,Gdata.nbCities);
 
-    firstBotPlay(Gdata.starter,Hand, Matrice,Gdata.nbCities);
+        quitGame();
+        free(Gdata.gameName);
+        free(Gdata.trackData);
+        freeMatrix(Matrice, Gdata.nbCities);
 
-    quitGame();
-    free(Gdata.gameName);
-    free(Gdata.trackData);
-    freeMatrix(Matrice, Gdata.nbCities);
     return EXIT_SUCCESS;
 }
