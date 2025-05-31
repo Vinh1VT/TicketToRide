@@ -271,9 +271,7 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
     int locomotives = 0;
     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && claimTrack->Longueur == 0 && color == NONE ){
-        if (color != NONE){
-            return claimTrack;
-        }
+
         Track* temp = Matrix[claimTrack->Ville2][Prec[claimTrack->Ville2]];
         if (temp != claimTrack){
             claimTrack = temp;
@@ -282,45 +280,28 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
         }
         color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     }
-
+    if (color != NONE){
+        return claimTrack;
+    }
     return NULL;
 }
 
-ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, int Hand[],CardColor colorTarget, int* wagon){
+ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, int Hand[], int* wagon){
     //Claim the longest path available connected to our network, that is not of our target color
-    Track maxLong;
-    maxLong.Longueur = 0;
-    for (int i = 0; i<nbCities;i++){
-        for (int j = 0 ; j < i; j++){
-            if (Matrix[i][j]!= NULL &&  Matrix[i][j]->Claimed == PLAYER){
-                for (int k = 0; k < i;k++){
-                    if (Matrix[i][k] != NULL && Matrix[i][k]->Claimed == UNCLAIMED && Matrix[i][k]->Longueur > maxLong.Longueur){
-                        int locomotivesClaimDefault=0;
-                        CardColor claimColor = claimableTrack(*Matrix[i][k],Hand,&locomotivesClaimDefault,*wagon);
-                        if (claimColor != colorTarget){
-                            maxLong = *Matrix[i][k];
-                        }
-                    }
+
+    for (int i =0;i<nbCities;i++){
+        for (int j =i+1;j<nbCities;j++){
+            Track* current = Matrix[i][j];
+            if (current != NULL && current->Claimed == UNCLAIMED){
+                int locomotives = 0;
+                CardColor color = claimableTrack(*current,Hand,&locomotives,*wagon);
+                if (color != NONE){
+                    return claimRouteBot(Result,color,locomotives,current,Hand,wagon);
                 }
             }
         }
     }
-    if (maxLong.Longueur != 0){
-        int locomotivesToActuallyClaim=0;
-        CardColor claimColor = claimableTrack(maxLong,Hand,&locomotivesToActuallyClaim,*wagon);
-        return claimRouteBot(Result,claimColor,locomotivesToActuallyClaim,&maxLong,Hand,wagon);
-    }else{
-        //Claims any road that is claimable (extremely rare case but oh well it does happen in some seeds)
-        for (int i = 0; i<nbCities;i++){
-            for (int j = 0; j<nbCities;j++){
-                if (Matrix[i][j] != NULL && Matrix[i][j]->Claimed == UNCLAIMED){
-                    int locomotivesToClaimDefault = 0;
-                    CardColor claimColor = claimableTrack(*Matrix[i][j],Hand,&locomotivesToClaimDefault,*wagon);
-                    return claimRouteBot(Result,claimColor,locomotivesToClaimDefault,Matrix[i][j],Hand,wagon);
-                }
-            }
-        }
-    }
+
     return LOSING_MOVE;
 }
 
@@ -404,6 +385,9 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
 
             Track* claimTrack;
             if (firstTrack != NULL) {
+                if (firstTrack->Longueur == INT_MAX){
+                    firstTrack = Matrix[objectiveTab[0].to][Prec[objectiveTab[0].to]];
+                }
                 claimTrack = claimableTrackInPath(firstTrack,Hand,Prec,Matrix,wagon); //A track on the path to the first objective that is claimable
             }else {
                 claimTrack = NULL;
@@ -419,8 +403,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                     CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
                     Code = drawCardBot(Result,Hand,targetColor,&cardDeck); //it never draws locmotives (except by drawing blindly), but oh well
                 }else{
-                    CardColor targetColor = chooseColorTarget(Hand, firstTrack,Prec,Matrix);
-                    Code = claimDefaultTrack(Result,nbCities,Matrix,Hand,targetColor,&wagon);
+                    Code = claimDefaultTrack(Result,nbCities,Matrix,Hand,&wagon);
                 }
             }else{
                 int choice[3]= {0,0,0};

@@ -133,7 +133,7 @@ ResultCode placeTrackRandom(MoveResult* Result, Track tab[], int nbTracks, int H
     MoveData* Data = malloc(sizeof(MoveData));
     Data -> action = CLAIM_ROUTE;
     for (int i =0; i < nbTracks; i++){
-        CardColor color  = claimableTrackWithoutLocomotives(tab[i],Hand);
+        CardColor color  = claimableTrackWithoutLocomotives(tab[i],Hand,45);
         if (color!=0){
             ClaimRouteMove Move;
             Move.nbLocomotives = 0;
