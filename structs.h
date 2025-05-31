@@ -24,6 +24,7 @@ struct Track_ {
     bool Double;
     CardColor Couleur2;
     Claim Claimed;
+    int weight;
 };
 
 

@@ -17,6 +17,7 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
             tableau[i].Double = true;
         }
         tableau[i].Claimed = UNCLAIMED;
+        tableau[i].weight = 0;
         p = p + 5;
     }
 }
@@ -85,7 +86,7 @@ void removeFromHand(int Hand[], CardColor color, int n){
 
 
 
-CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
+CardColor claimableTrackWithoutLocomotives(Track t, int Hand[], int wagon){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     //returns the color with which you can claim 0 if not claimable
     if(t.Claimed == UNCLAIMED){
         if (t.Couleur1 == LOCOMOTIVE){
@@ -95,9 +96,9 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be 
                 }
             }
         } else{
-            if (t.Longueur <= Hand[t.Couleur1-1] ){
+            if (t.Longueur <= Hand[t.Couleur1-1] && wagon >= t.Longueur ){
                 return t.Couleur1;
-            }else if (t.Couleur2 != NONE && t.Longueur <= Hand[t.Couleur2-1]){
+            }else if (t.Couleur2 != NONE && t.Longueur <= Hand[t.Couleur2-1] && wagon>= t.Longueur){
                 return t.Couleur2;
             }
         }
@@ -106,7 +107,7 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[]){ //Hand must be 
 }
 
 CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon){
-    CardColor color = claimableTrackWithoutLocomotives(t,Hand);
+    CardColor color = claimableTrackWithoutLocomotives(t,Hand,wagon);
     if (t.Claimed == UNCLAIMED && color == NONE){
         CardColor C1 = t.Couleur1;
         CardColor C2 = t.Couleur2;
@@ -144,9 +145,9 @@ void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int
 }
 
 
-bool isAnyTrackClaimable(Track t[], int Hand[],int nbTracks){
+bool isAnyTrackClaimable(Track t[], int Hand[], int nbTracks, int wagon){
     for (int i = 0; i<nbTracks; i++){
-        if (claimableTrackWithoutLocomotives(t[i],Hand)){
+        if (claimableTrackWithoutLocomotives(t[i],Hand,wagon)){
             return true;
         }
     }

@@ -221,7 +221,7 @@ void randomPlay(int starter, Track tab[], int nbTracks, int Hand[]){
             }
             t = JOUEUR;
         } else{
-            int choix = randomChoice(false, cardDeck > 2, isAnyTrackClaimable(tab, Hand, nbTracks));
+            int choix = randomChoice(false, cardDeck > 2, isAnyTrackClaimable(tab, Hand, nbTracks, 45));
             printf("Choix : %d\n", choix);
             switch (choix){
             case 1:

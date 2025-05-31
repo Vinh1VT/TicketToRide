@@ -271,6 +271,9 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
     int locomotives = 0;
     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && claimTrack->Longueur == 0 && color == NONE ){
+        if (color != NONE){
+            return claimTrack;
+        }
         Track* temp = Matrix[claimTrack->Ville2][Prec[claimTrack->Ville2]];
         if (temp != claimTrack){
             claimTrack = temp;
@@ -280,9 +283,6 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
         color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
     }
 
-    if (color != NONE){
-        return claimTrack;
-    }
     return NULL;
 }
 
@@ -295,7 +295,7 @@ ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, 
             if (Matrix[i][j]!= NULL &&  Matrix[i][j]->Claimed == PLAYER){
                 for (int k = 0; k < i;k++){
                     if (Matrix[i][k] != NULL && Matrix[i][k]->Claimed == UNCLAIMED && Matrix[i][k]->Longueur > maxLong.Longueur){
-                        int locomotivesClaimDefault;
+                        int locomotivesClaimDefault=0;
                         CardColor claimColor = claimableTrack(*Matrix[i][k],Hand,&locomotivesClaimDefault,*wagon);
                         if (claimColor != colorTarget){
                             maxLong = *Matrix[i][k];
@@ -306,7 +306,7 @@ ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, 
         }
     }
     if (maxLong.Longueur != 0){
-        int locomotivesToActuallyClaim;
+        int locomotivesToActuallyClaim=0;
         CardColor claimColor = claimableTrack(maxLong,Hand,&locomotivesToActuallyClaim,*wagon);
         return claimRouteBot(Result,claimColor,locomotivesToActuallyClaim,&maxLong,Hand,wagon);
     }else{
@@ -314,7 +314,7 @@ ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, 
         for (int i = 0; i<nbCities;i++){
             for (int j = 0; j<nbCities;j++){
                 if (Matrix[i][j] != NULL && Matrix[i][j]->Claimed == UNCLAIMED){
-                    int locomotivesToClaimDefault;
+                    int locomotivesToClaimDefault = 0;
                     CardColor claimColor = claimableTrack(*Matrix[i][j],Hand,&locomotivesToClaimDefault,*wagon);
                     return claimRouteBot(Result,claimColor,locomotivesToClaimDefault,Matrix[i][j],Hand,wagon);
                 }

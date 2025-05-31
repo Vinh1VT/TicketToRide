@@ -11,7 +11,7 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TOURNAMENT Test";
+    char* Gsettings = "TRAINING NICE_BOT seed=3652038";
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
@@ -32,7 +32,7 @@ int main(int const argc, char** argv){
         //manualPlay(Gdata.starter);
 
         //randomPlay(Gdata.starter,tableauTrack,Gdata.nbTracks,Hand);
-
+        printf("===========================%d============================\n",Gdata.gameSeed);
         firstBotPlay(Gdata.starter,Hand, Matrice,Gdata.nbCities);
 
         quitGame();
