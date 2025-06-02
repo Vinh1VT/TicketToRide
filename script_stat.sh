@@ -2,7 +2,7 @@
 
 N_PROCESS=10
 PROJET="./stat"
-NOM="TGVinhStatV7"
+NOM="TGVinhStatV8"
 DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/V7
 
 mkdir -p "$DIR"
