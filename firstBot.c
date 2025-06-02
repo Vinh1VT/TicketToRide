@@ -10,6 +10,7 @@
 
 #include "fonctions.h"
 #include "structs.h"
+#include "analyse.h"
 
 
 
@@ -65,7 +66,7 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[
         if (Code != ALL_GOOD){
             return Code;
         }
-        firstTurnObjectiveChoice(choice,Result->objectives, Matrix, nbCities);
+        weightBasedFirstTurnObjectiveChoice(choice,Result->objectives, Matrix, nbCities);
         *objectiveDeck -= 2;
         int p = 0;
         Data->action = CHOOSE_OBJECTIVES;
@@ -85,7 +86,7 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[
         if (Code != ALL_GOOD){
             return Code;
         }
-        firstTurnObjectiveChoice(choice,Result->objectives, Matrix, nbCities);
+        weightBasedFirstTurnObjectiveChoice(choice,Result->objectives, Matrix, nbCities);
         *objectiveDeck -= 2;
         int p = 0;
         Data->action = CHOOSE_OBJECTIVES;
@@ -262,7 +263,7 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
     Track* claimTrack = firstTrack;
     int locomotives = 0;
     CardColor color = claimableTrack(*claimTrack,Hand,&locomotives, wagon);
-    while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && claimTrack->Longueur == 0 && color == NONE ){
+    while (Prec[claimTrack->Ville1] != -1 && Prec[claimTrack->Ville2]!= -1 && color == NONE ){
 
         Track* temp = Matrix[claimTrack->Ville2][Prec[claimTrack->Ville2]];
         if (temp != claimTrack){

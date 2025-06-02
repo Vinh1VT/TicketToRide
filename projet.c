@@ -3,15 +3,15 @@
 
 #include "firstBot.h"
 #include "fonctions.h"
-#include "randomBot.h"
 #include "structs.h"
 #include "tickettorideapi/ticketToRide.h"
+#include "analyse.h"
 
 int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TRAINING NICE_BOT seed=8303901";
+    char* Gsettings = "TRAINING NICE_BOT";
     GameData Gdata;
     //Gsettings.gameType = TRAINING;
     //Gsettings.botId = RANDOM_PLAYER;
@@ -28,6 +28,7 @@ int main(int const argc, char** argv){
         Track tableauTrack[Gdata.nbTracks];
         parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
         Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
+        weightTrack(Gdata.nbCities,Matrice);
         //afficherMatrice(Matrice,Gdata.nbCities);
         //manualPlay(Gdata.starter);
 

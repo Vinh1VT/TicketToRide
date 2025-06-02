@@ -21,3 +21,60 @@ void weightTrack(int nbCities,Track*** Matrix){
         }
     }
 }
+
+void chooseTwoFromFloat(bool choice[3], float tab[3]) {
+    for (int i = 0; i < 3; i++) {
+        choice[i] = false;
+    }
+
+    int max1 = 0, max2 = 1;
+
+    if (tab[max2] > tab[max1]) {
+        int temp = max1;
+        max1 = max2;
+        max2 = temp;
+    }
+
+    for (int i = 2; i < 3; i++) {
+        if (tab[i] > tab[max1]) {
+            max2 = max1;
+            max1 = i;
+        } else if (tab[i] > tab[max2]) {
+            max2 = i;
+        }
+    }
+    choice[max1] = true;
+    choice[max2] = true;
+}
+
+void weightBasedFirstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
+    float weightTab[3] = {0,0,0};
+    float countTab[3] = {0,0,0};
+
+    for (int i = 0; i < 3; i++){
+        int Prec[nbCities];
+        int D[nbCities];
+        Dijkstra(tab[i].from,Matrix,nbCities,D,Prec);//On fait le dijkstra sur les objectifs, puis on choisit ceux avec le plus de poids
+        Track* parcours = Matrix[tab[i].to][Prec[tab[i].to]];
+
+        weightTab[i] += (float)parcours -> weight;
+        countTab[i] += 1;
+
+        while (Prec[parcours->Ville1] != -1 && Prec[parcours->Ville2] != -1){
+            Track* temp = Matrix[parcours->Ville2][Prec[parcours->Ville2]];
+            if (temp == parcours){
+                temp = Matrix[parcours->Ville1][Prec[parcours->Ville1]];
+            }
+            parcours = temp;
+
+            weightTab[i] += (float)parcours -> weight;
+            countTab[i] += 1;
+        }
+
+        weightTab[i] = weightTab[i] / countTab[i];
+    }
+
+
+
+    chooseTwoFromFloat(choice,weightTab);
+}
