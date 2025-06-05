@@ -5,6 +5,7 @@
 
 #include <limits.h>
 
+    //Remplit la structure Track pour en faire un tableau avec les bons champs
 void parseTrack(Track* tableau,int* trackData, int nbTracks){
     int* p = trackData;
     for(int i =0; i<nbTracks;i++){
@@ -22,6 +23,7 @@ void parseTrack(Track* tableau,int* trackData, int nbTracks){
     }
 }
 
+    //Crée une matrice contenant un pointeur de la route entre i et j (les dimensions de la matrice)
 Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities, Track* TrackZero){
     Track *** matrice = malloc(sizeof(Track**)*nbCities);
     for(int i =0; i<nbCities;i++){
@@ -45,6 +47,7 @@ Track*** createProximityMatrix(Track* tableau, int nbTracks, int nbCities, Track
 }
 
 
+    //Affiche la matrice (utile pour du debug)
 void printMatrix(FILE* stream, Track*** matrix, int n){
     for(int ligne = 0; ligne<n;ligne++){
         printf("%d : ",ligne);
@@ -60,6 +63,7 @@ void printMatrix(FILE* stream, Track*** matrix, int n){
 
 
 }
+    //Free la matrice
 void freeMatrix(Track*** matrice, int n){
     for (int i = 0; i<n;i++){
         free(matrice[i]);
@@ -67,6 +71,7 @@ void freeMatrix(Track*** matrice, int n){
     free(matrice);
 }
 
+    //Parse la main au début du jeu, en un tableau de 9 entiers
 void parseHand(int Hand[], CardColor starting[]){
     for(int i = 0; i<9; i++){
         Hand[i] =  0;
@@ -85,7 +90,7 @@ void removeFromHand(int Hand[], CardColor color, int n){
 }
 
 
-
+    //Renvoie la couleur avec laquelle on peut prendre une route si c'est le cas, None sinon
 CardColor claimableTrackWithoutLocomotives(Track t, int Hand[], int wagon){ //Hand must be an integer tab of 9 elements, each one being the number of card of the n+1 color in hand
     //returns the color with which you can claim 0 if not claimable
     if(t.Claimed == UNCLAIMED){
@@ -105,7 +110,7 @@ CardColor claimableTrackWithoutLocomotives(Track t, int Hand[], int wagon){ //Ha
     }
     return NONE;
 }
-
+    //Renvoie la couleur avec laquelle on peut prendre une route si c'est le cas, et le nombre de locomotives avec lequel c'est possible. None sinon
 CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon){
     CardColor color = claimableTrackWithoutLocomotives(t,Hand,wagon);
     if (t.Claimed == UNCLAIMED && color == NONE){
@@ -135,7 +140,7 @@ CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon){
     return color;
 }
 
-
+    //Update les route qui ont été prises (plus utilisé)
 void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int to, Claim Claimer){
     for (int i = 0; i<nbTracks;i++){
         if ((tab[i].Ville1==from && tab[i].Ville2==to )||(tab[i].Ville2==from && tab[i].Ville1==to)){
@@ -144,7 +149,7 @@ void updateClaimedTrack(Track tab[],int nbTracks,unsigned int from, unsigned int
     }
 }
 
-
+    //Regarde si une route dans le plateau (n'importe laquelle) peut être prise, utilisé par le random bot
 bool isAnyTrackClaimable(Track t[], int Hand[], int nbTracks, int wagon){
     for (int i = 0; i<nbTracks; i++){
         if (claimableTrackWithoutLocomotives(t[i],Hand,wagon)){
@@ -153,7 +158,7 @@ bool isAnyTrackClaimable(Track t[], int Hand[], int nbTracks, int wagon){
     }
     return false;
 }
-
+    //Fonction de distance mini de Dijkstra
 int distanceMini(unsigned int* D, bool visited[], unsigned int N){
     unsigned int min = INT_MAX;
     int indice_min = -1;
@@ -165,7 +170,7 @@ int distanceMini(unsigned int* D, bool visited[], unsigned int N){
     }
     return indice_min;
 }
-
+    //Dijkstra, renvoie la distance entre src et les autres villes dans D, et la ville précédente pour y arriver dans prec
 void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, int* Prec){
     bool visited[N];
     for (int i = 0; i<N;i++){//Reset the Disjktra algorithm, IDK if it will fix bugs and infinite cycles, but I sure hope so
@@ -188,12 +193,13 @@ void Dijkstra(unsigned int src,Track*** Matrix,unsigned int N,unsigned int* D, i
     }
 }
 
-
+    //Free les messages du serveur
 void freeMessage(MoveResult* Result){
     free(Result->message);
     free(Result->opponentMessage);
 }
 
+    //Copie un objectif, pour pas garder les pointeurs dans Result qui sont perdus lorsque Result est édité
 Objective objectiveCopy(Objective original){
     Objective copy;
     copy.score = original.score;
@@ -201,27 +207,15 @@ Objective objectiveCopy(Objective original){
     copy.to = original.to;
     return copy;
 }
-
+    //Affiche la main, pour du debug
 void printHand(int Hand[]){
     for (int i = 0;i<9;i++){
         printf("%d : %d \n", i+1,Hand[i]);
     }
 }
 
-void removeObjective(Objective tab[], Objective o, int objectiveCount){
-    int index = 200;
-    for (int i = 0; i<objectiveCount ;i++){
-        if (tab[i].from == o.from && tab[i].to == o.to && tab[i].score == o.score ){
-            index = i;
-        }
-        if (i>index){
-            tab[i-1] = tab[i];
-        }
-    }
-}
-
-void sortObjective(Objective tab[],int objectiveCount){
     //Sort by score the objective tab, it's a bubble sort because why tf would I implement a harder one
+void sortObjective(Objective tab[],int objectiveCount){
     for (int i =0; i<objectiveCount-1;i++){
         if (tab[i+1].score<tab[i].score){
             Objective temp = tab[i];
@@ -231,6 +225,7 @@ void sortObjective(Objective tab[],int objectiveCount){
     }
 }
 
+    //Renvoie la couleur la plus présente en main
 CardColor maxHand(int Hand[]){
     int max = 0;
     for (int i = 0; i<8 ; i++){
@@ -241,6 +236,7 @@ CardColor maxHand(int Hand[]){
     return max;
 }
 
+    //Renvoie le nombre total de cartes en main
 int totalCardsInHand(int Hand[]){
     int total = 0;
     for (int i  = 0; i<9;i++){
@@ -249,8 +245,8 @@ int totalCardsInHand(int Hand[]){
     return total;
 }
 
-unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c){
     //returns the max out of 3 numbers, useful for the choice function
+unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c){
     unsigned int maxi = a;
     if (b>maxi) {
         maxi = b;
@@ -261,6 +257,7 @@ unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c){
     return maxi;
 }
 
+    //Pareil que la fonction précédente mais en float
 float floatMax(float a, float b, float c){
     float maxi = a;
     if (b>maxi) {
@@ -272,7 +269,7 @@ float floatMax(float a, float b, float c){
     return maxi;
 }
 
-
+    //Renvoie la distance entre 2 villes, d'apres Dijkstra
 unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
     unsigned int D[nbCities];
     int Prec[nbCities];
@@ -282,6 +279,7 @@ unsigned int distance(Objective obj,Track*** Matrix,int nbCities){
     return D[obj.to];
 }
 
+    //Renvoie l'index de la valeur minimum dans un tableau d'entiers
 unsigned int minIndex(unsigned int a, unsigned int b, unsigned int  c){
     unsigned int mini = a;
     if (mini>b){
@@ -299,9 +297,10 @@ unsigned int minIndex(unsigned int a, unsigned int b, unsigned int  c){
     return 2;
 }
 
-
-void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
-    float rateTab[3] = {objectiveRate(newObjectives[0],Matrix,nbCities),objectiveRate(newObjectives[1],Matrix,nbCities),objectiveRate(newObjectives[2],Matrix,nbCities)};
+    //Choisit les objecitfs (a partir du Rate)
+void objectiveChoice(int choice[], Objective newObjectives[], Track*** Matrix, int nbCities, int* objectiveCount, int* objectiveDeck, int
+                     wagon){ //always chooses already completed objectives (free points), and chooses the most valuable one in score
+    float rateTab[3] = {objectiveRate(newObjectives[0],Matrix,nbCities, wagon),objectiveRate(newObjectives[1],Matrix,nbCities, wagon),objectiveRate(newObjectives[2],Matrix,nbCities, wagon)};
     bool chosen = false;
     for (int i =0;i<3;i++){
         if (rateTab[i] == INT_MAX){
@@ -345,14 +344,33 @@ void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matr
         v = Prec[v];
     }
 }
-
-float objectiveRate(Objective objective,Track*** Matrix,int nbCities){
+    //Renvoie la "note" d'un objectif (a quel point il rapporte des points par rapport à la distance parcourue)
+float objectiveRate(Objective objective, Track*** Matrix, int nbCities, int wagon){
     unsigned int objDistance = distance(objective,Matrix,nbCities);
-    if (objDistance == INT_MAX){
+    if (objDistance > wagon){ //On ne prend pas si on ne peut pas faire l'objectif
         return 0;
-    }else if (objDistance == 0){
+    }
+    if (objDistance == 0){ //On prend tout de suite si l'objectif est déjà réalisé
         return INT_MAX;
     }
 
-    return (float)objective.score / (float)objDistance;
+    unsigned int D[nbCities];
+    int Prec[nbCities];
+    Dijkstra(objective.from,Matrix,nbCities,D,Prec);
+
+    Track* Parcours = Matrix[objective.to][Prec[objective.to]];
+    float note = (float) objective.score + (float) Parcours->weight;
+    while (Prec[Parcours->Ville1] != -1 && Prec[Parcours->Ville2] != -1){
+
+        Track * temp = Matrix[Parcours->Ville1][Prec[Parcours->Ville1]];
+        if (temp == Parcours){
+            temp = Matrix[Parcours->Ville2][Prec[Parcours->Ville2]];
+        }
+        Parcours = temp;
+
+        note += (float)Parcours->weight;
+    }
+
+
+    return note / (float)objDistance;
 }

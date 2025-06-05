@@ -9,5 +9,6 @@
 
 void weightTrack(int nbCities,Track*** Matrix);
 void weightBasedFirstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities);
+void weightWithRoutePoint(int nbCities, Track*** Matrix);
 
 #endif //ANALYSE_H

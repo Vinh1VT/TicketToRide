@@ -22,6 +22,38 @@ void weightTrack(int nbCities,Track*** Matrix){
     }
 }
 
+void weightWithRoutePoint(int nbCities, Track*** Matrix){
+    for (int i = 0;i<nbCities;i++){
+        for (int j = i +1; j < nbCities;j++){
+            if (Matrix[i][j] != NULL){
+                Track* route = Matrix[i][j];
+                switch (route->Longueur){
+                case 1 :
+                    route->weight += 1;
+                    break;
+                case 2 :
+                    route->weight += 2;
+                    break;
+                case 3 :
+                    route->weight += 4;
+                    break;
+                case 4 :
+                    route->weight += 7;
+                    break;
+                case 5 :
+                    route->weight += 10;
+                    break;
+                case 6 :
+                    route->weight += 15;
+                    break;
+                default :
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void chooseTwoFromFloat(bool choice[3], float tab[3]) {
     for (int i = 0; i < 3; i++) {
         choice[i] = false;
@@ -53,7 +85,7 @@ void weightBasedFirstTurnObjectiveChoice(bool choice[], Objective tab[], Track**
 
     for (int i = 0; i < 3; i++){
         int Prec[nbCities];
-        int D[nbCities];
+        unsigned int D[nbCities];
         Dijkstra(tab[i].from,Matrix,nbCities,D,Prec);//On fait le dijkstra sur les objectifs, puis on choisit ceux avec le plus de poids
         Track* parcours = Matrix[tab[i].to][Prec[tab[i].to]];
 

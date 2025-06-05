@@ -24,9 +24,10 @@ CardColor claimableTrack(Track t, int Hand[], int* locomotives, int wagon);
 CardColor maxHand(int Hand[]);
 int totalCardsInHand(int Hand[]);
 unsigned int unsignedMax(unsigned int a,  unsigned int b, unsigned int c);
-void objectiveChoice(int choice[],Objective newObjectives[],Track*** Matrix, int nbCities, int* objectiveCount,int* objectiveDeck);
+void objectiveChoice(int choice[], Objective newObjectives[], Track*** Matrix, int nbCities, int* objectiveCount, int* objectiveDeck, int
+                     wagon);
 void printRoutesAddress(FILE* stream,int src, int dest, int Prec[],Track*** Matrix);
 unsigned int distance(Objective obj,Track*** Matrix,int nbCities);
-float objectiveRate(Objective objective,Track*** Matrix,int nbCities);
+float objectiveRate(Objective objective, Track*** Matrix, int nbCities, int wagon);
 float floatMax(float a, float b, float c);
 #endif //FONCTIONS_H

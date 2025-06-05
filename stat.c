@@ -7,6 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "analyse.h"
 #include "firstBot.h"
 #include "fonctions.h"
 #include "structs.h"
@@ -45,6 +46,8 @@ int main(int const argc, char** argv){
         Track tableauTrack[Gdata.nbTracks];
         parseTrack(tableauTrack,Gdata.trackData,Gdata.nbTracks);
         Track*** Matrice = createProximityMatrix(tableauTrack,Gdata.nbTracks, Gdata.nbCities,&TrackZero);
+        weightTrack(Gdata.nbCities,Matrice);
+        weightWithRoutePoint(Gdata.nbCities,Matrice);
         firstBotPlay(Gdata.starter,Hand, Matrice,Gdata.nbCities);
         quitGame();
         free(Gdata.gameName);

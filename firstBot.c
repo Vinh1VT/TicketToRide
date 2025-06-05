@@ -14,30 +14,6 @@
 
 
 
-void firstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
-    //if it's the first turn, claims 2 objectives, claims only one otherwise
-    //always chooses the objectives with the better score/distance ratio
-    float rateTab[3] = {objectiveRate(tab[0],Matrix,nbCities),objectiveRate(tab[1],Matrix,nbCities),objectiveRate(tab[2],Matrix,nbCities)};
-    float maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
-    for (int i = 0; i<3;i++){
-        if (rateTab[i] == maxRate){
-            choice[i] = true;
-            rateTab[i] = 0;
-            break;
-        }
-    }
-
-    maxRate = floatMax(rateTab[0],rateTab[1],rateTab[2]);
-
-    for (int i = 0; i<3;i++){
-        if (rateTab[i] == maxRate){
-            choice[i] = true;
-            rateTab[i] = 0;
-            break;
-        }
-    }
-}
-
 ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[], Track*** Matrix, int nbCities){
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
@@ -196,38 +172,20 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
     MoveData* Data = malloc(sizeof(MoveData));
     ResultCode Code;
 
-    for (int i = 0 ; i<2 ; i++){ //Rarely seen a more useless loop, but oh well, the code does look better with it
-        if (targetColorOnBoard(target) && ~(target == LOCOMOTIVE && i ==1)){
+    for (int i = 0 ; i<2 ; i++){
+        if (targetColorOnBoard(target) && !(target == LOCOMOTIVE && i ==1)){
             Data->action = DRAW_CARD;
             Data->drawCard = target;
             Code = sendMove(Data,Result);
             addToHand(Hand,target);
             *cardDeck -= 1;
-        }else if (*cardDeck > 6){ //Si il reste des cartes pas sur le board
+        }else{
             Data->action = DRAW_BLIND_CARD;
             Code = sendMove(Data,Result);
-            addToHand(Hand,Result->card);
-            *cardDeck -= 1;
-        }else{
-            if (i == 0 && targetColorOnBoard(LOCOMOTIVE)){
-                Data->action = DRAW_CARD;
-                Data->drawCard = LOCOMOTIVE;
-                Code = sendMove(Data,Result);
-                addToHand(Hand,LOCOMOTIVE);
+            if (Result->card != NONE){
+                addToHand(Hand,Result->card);
                 *cardDeck -= 1;
-                return Code;
             }
-            Data->action = DRAW_CARD;
-            BoardState* board = malloc(sizeof(BoardState));
-            getBoardState(board);
-            for (int j = 0; j < 5;j++){
-                if (board->card[j] != LOCOMOTIVE){
-                    Data->drawCard = board->card[j];
-                    break;
-                }
-            }
-            free(board);
-            Code = sendMove(Data,Result);
         }
 
         if (Code!=ALL_GOOD) return Code;
@@ -409,7 +367,7 @@ void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
                 Code = sendMove(drawObjectiveMove,Result);
                 if (Code == ALL_GOOD){
                     drawObjectiveMove -> action = CHOOSE_OBJECTIVES;
-                    objectiveChoice(choice,Result->objectives,Matrix,nbCities,&objectiveCount,&objectiveDeck);
+                    objectiveChoice(choice,Result->objectives,Matrix,nbCities,&objectiveCount,&objectiveDeck, wagon);
                     for (int i = 0; i<3;i++){
                         drawObjectiveMove->chooseObjectives[i] = choice[i];
                         if (choice[i] == 1){
