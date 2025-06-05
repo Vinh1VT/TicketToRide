@@ -359,7 +359,11 @@ float objectiveRate(Objective objective, Track*** Matrix, int nbCities, int wago
     Dijkstra(objective.from,Matrix,nbCities,D,Prec);
 
     Track* Parcours = Matrix[objective.to][Prec[objective.to]];
-    float note = (float) objective.score + (float) Parcours->weight;
+
+    float note = (float) objective.score;
+
+    if (Parcours->Longueur >0 ) note += (float)Parcours->weight;
+
     while (Prec[Parcours->Ville1] != -1 && Prec[Parcours->Ville2] != -1){
 
         Track * temp = Matrix[Parcours->Ville1][Prec[Parcours->Ville1]];
@@ -368,7 +372,7 @@ float objectiveRate(Objective objective, Track*** Matrix, int nbCities, int wago
         }
         Parcours = temp;
 
-        note += (float)Parcours->weight;
+        if (Parcours->Longueur > 0) note += (float)Parcours->weight;
     }
 
 

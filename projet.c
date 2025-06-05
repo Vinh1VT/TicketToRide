@@ -11,7 +11,7 @@ int main(int const argc, char** argv){
 
     extern int DEBUG_LEVEL;
     DEBUG_LEVEL = INTERN_DEBUG;
-    char* Gsettings = "TRAINING NICE_BOT seed=797430";
+    char* Gsettings = "TRAINING NICE_BOT";
     GameData Gdata;
 
     int Hand[9];
