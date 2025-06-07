@@ -1,9 +1,11 @@
 #!/bin/bash
+#This script was used to make quickly a big numbers of game (400~500), and collect the logs to calculate the winrate
+
 
 N_PROCESS=10
 PROJET="./stat"
-NOM="TGVinhStatWNF"
-DIR=/home/vinh/Documents/Programmation/TTRProjet/LogStat/WPN
+NOM="BOTNAME"
+DIR= #PUT PATH HERE
 
 mkdir -p "$DIR"
 
