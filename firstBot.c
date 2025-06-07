@@ -13,7 +13,7 @@
 #include "analyse.h"
 
 
-
+//Fonction pour le premier tour
 ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[], Track*** Matrix, int nbCities){
     Tour t = starter;
     MoveResult* Result = malloc(sizeof(MoveResult));
@@ -98,6 +98,7 @@ ResultCode firstTurnBot(int starter, int* objectiveDeck, Objective objectiveTab[
     return Code;
 }
 
+//Fonction qui claim une route
 ResultCode claimRouteBot(MoveResult* Result,CardColor color,int locomotives,Track* track,int Hand[], int* wagon){
     MoveData* Data = malloc(sizeof(MoveData));
 
@@ -168,6 +169,7 @@ bool targetColorOnBoard(CardColor target){
     return false;
 }
 
+//Fonction qui tire une carte
 ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* cardDeck){
     MoveData* Data = malloc(sizeof(MoveData));
     ResultCode Code;
@@ -216,7 +218,7 @@ ResultCode drawCardBot(MoveResult* Result,int Hand[], CardColor target,int* card
     return Code;
 }*/
 
-
+//Fonction qui regarde si on peut prendre une route dans le chemin que l'on veut
 Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Matrix,int wagon){
     Track* claimTrack = firstTrack;
     int locomotives = 0;
@@ -237,6 +239,7 @@ Track* claimableTrackInPath(Track* firstTrack,int Hand[],int Prec[],Track*** Mat
     return NULL;
 }
 
+//Fonction qui prend une route (si jamais on a trop de cartes)
 ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, int Hand[], int* wagon){
     //Claim the longest path available connected to our network, that is not of our target color
 
@@ -256,7 +259,7 @@ ResultCode claimDefaultTrack(MoveResult* Result,int  nbCities, Track*** Matrix, 
     return LOSING_MOVE;
 }
 
-
+//Fonction de jeu globale
 void firstBotPlay(int starter,int Hand[], Track*** Matrix,int nbCities){
 //This bot will try to do the shortest path to his objectives, without any priority on which track to claim
 //it will choose the objectives that always get the most points
