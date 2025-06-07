@@ -7,6 +7,9 @@
 #include "fonctions.h"
 #include "structs.h"
 
+//Fichiers qui met le poids des route et la fonction de choix des objectifs au premier tour 
+
+//Met les poids avec le nombre de chemin le plus court dans lequel la route apparait
 void weightTrack(int nbCities,Track*** Matrix){
     for (int i = 0;i<nbCities;i++){
         unsigned int D[nbCities];
@@ -22,6 +25,7 @@ void weightTrack(int nbCities,Track*** Matrix){
     }
 }
 
+//Rajoute des poids en fonction du nombre de points qu'elle rapporte
 void weightWithRoutePoint(int nbCities, Track*** Matrix){
     for (int i = 0;i<nbCities;i++){
         for (int j = i +1; j < nbCities;j++){
@@ -79,6 +83,8 @@ void chooseTwoFromFloat(bool choice[3], float tab[3]) {
     choice[max2] = true;
 }
 
+
+//Choisit les deux objectifs avec le plus de poids au premier tour
 void weightBasedFirstTurnObjectiveChoice(bool choice[], Objective tab[], Track*** Matrix, int nbCities){
     float weightTab[3] = {0,0,0};
     float countTab[3] = {0,0,0};
